@@ -7,26 +7,26 @@ function get_maze_grid() {
   const startingX = Math.floor(Math.random() * N);
   const startingY = Math.floor(Math.random() * N);
 
-  carve_passages_from(startingY, startingX, N, grid);
+  carve_passages_from(startingX, startingY, N, grid);
 
   return grid;
 }
 
-function carve_passages_from(curY, curX, N, grid) {
+function carve_passages_from(curX, curY, N, grid) {
   directions = ['E', 'W', 'N', 'S'];
   shuffle(directions);
 
   directions.forEach((direction) => {
-    [nxtY, nxtX] = [curY + DY[direction], curX + DX[direction]];
+    [nxtX, nxtY] = [curX + DX[direction], curY + DY[direction]];
 
     // check boundary for the next sqaure
-    if(0 <= nxtY && nxtY < N && 0 <= nxtX && nxtX < N) {
+    if(0 <= nxtX && nxtX < N && 0 <= nxtY && nxtY < N) {
       // never reached grid
-      if(grid[nxtY][nxtX] === 0) {
-        grid[curY][curX] |= DIR_NUM[direction];
-        grid[nxtY][nxtX] |= DIR_NUM[OPPOSITE[direction]];
+      if(grid[nxtX][nxtY] === 0) {
+        grid[curX][curY] |= DIR_NUM[direction];
+        grid[nxtX][nxtY] |= DIR_NUM[OPPOSITE[direction]];
 
-        carve_passages_from(nxtY, nxtX, N, grid);
+        carve_passages_from(nxtX, nxtY, N, grid);
       }
     }
   });
