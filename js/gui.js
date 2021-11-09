@@ -18,44 +18,35 @@ function init() {
 
 function visualize_grid(grid) {
   const table = document.createElement("table");
+  const borderStyle = "thick solid #000000";
 
   // remove border-spacing
   table.style.borderSpacing = "0";
   table.style.borderCollapse = "collapse";
+  table.style.border = borderStyle;
+  table.style.padding = "1px";
 
   // rows
-  for(let i = 0; i < grid.length; i++) {
-    const row = table.insertRow(i);
+  for(let x = 0; x < grid.length; x++) {
+    const row = table.insertRow(x);
 
-    for(let j = 0; j < grid[i].length; j++) {
-      const cell = row.insertCell(j);
+    for(let y = 0; y < grid[x].length; y++) {
+      const cell = row.insertCell(y);
 
-      const borderStyle = "thick solid #000000";
-      for(const property in DIR_NUM) {
-        const wallIndex = DIR_NUM[property];
-
-        if(grid[i][j] & wallIndex) {
-          console.log(i , j , grid[i][j] , wallIndex);
-          switch(wallIndex) {
-            case 1:
-              cell.style.borderRight = borderStyle;
-              break;
-            case 2:
-              cell.style.borderLeft = borderStyle;
-              break;
-            case 4:
-              cell.style.borderTop = borderStyle;
-              break;
-            case 8:
-              cell.style.borderBottom = borderStyle;
-              break;
-            default:
-          }
-        }
+      if(!(grid[x][y] & DIR_NUM.S)) {
+        cell.style.borderBottom = borderStyle;
       }
 
-      cell.style.padding = "10px";
-      cell.innerHTML = `${i} - ${j}`;
+      if(grid[x][y] & DIR_NUM.E) {
+        if(!((grid[x][y] | grid[x][y + 1]) & DIR_NUM.S)) {
+          cell.style.borderBottom = borderStyle;
+        }
+      } else {
+        cell.style.borderRight = borderStyle;
+      }
+
+      cell.style.padding = "0.85em";
+      cell.innerHTML = `(${x},${y})`;
     }
   }
 
