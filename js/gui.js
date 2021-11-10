@@ -20,7 +20,8 @@ function visualize_grid(grid) {
   const table = document.createElement("table");
   const borderStyle = "thick solid #000000";
 
-  // remove border-spacing
+  // table setup
+  table.id = "table_maze";
   table.style.borderSpacing = "0";
   table.style.borderCollapse = "collapse";
   table.style.border = borderStyle;
@@ -52,4 +53,8 @@ function visualize_grid(grid) {
 
   const app = document.getElementById("app");
   app.appendChild(table);
+}
+
+function smooth_scroll_to_title() {
+  document.getElementsByClassName("title")[0].scrollIntoView();
 }
