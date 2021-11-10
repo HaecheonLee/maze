@@ -14,6 +14,7 @@ ready(function() {
 function init() {
   const grid = get_maze_grid();
   visualize_grid(grid);
+  smooth_scroll_to_title();
 }
 
 function visualize_grid(grid) {
