@@ -92,7 +92,7 @@ function set_row_style(row) {
 
 function set_cell_style(cell) {
   cell.id = `cell${cell.x}_${cell.y}`;
-  cell.style.padding = "0.5em 0.25em";
+  cell.style.padding = "0.4em 0.4em";
   if(!cell.style.borderTop) cell.style.borderTop = cell.borderThinDotted;
   if(!cell.style.borderBottom) cell.style.borderBottom = cell.borderThinDotted;
   if(!cell.style.borderRight) cell.style.borderRight = cell.borderThinDotted;
