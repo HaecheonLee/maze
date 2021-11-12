@@ -1,0 +1,1 @@
+let travelSpeed = 50;

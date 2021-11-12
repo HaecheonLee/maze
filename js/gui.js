@@ -107,7 +107,7 @@ function set_cell_style(cell) {
 }
 
 async function dfs(x, y, grid) {
-  await sleep(100);
+  await sleep(travelSpeed);
 
   const curCell = document.getElementById(`cell${x}_${y}`);
   curCell.classList.add('visited');
