@@ -15,7 +15,7 @@ function init() {
   const grid = get_maze_grid();
   visualize_grid(grid);
   smooth_scroll_to_title();
-  dfs(0, 0);
+  dfs(0, 0, grid);
 }
 
 function smooth_scroll_to_title() {
@@ -36,18 +36,25 @@ function visualize_grid(grid) {
 
     for(let y = 0; y < M; y++) {
       const cell = row.insertCell(y);
+      let wallState = 0;
 
       if(!(grid[x][y] & DIR_NUM.S)) {
+        wallState |= DIR_NUM.S;
         cell.style.borderBottom = borderThickSolid;
       }
 
       if(grid[x][y] & DIR_NUM.E) {
         if(!((grid[x][y] | grid[x][y + 1]) & DIR_NUM.S)) {
+          wallState |= DIR_NUM.S;
           cell.style.borderBottom = borderThickSolid;
         }
       } else {
+        wallState |= DIR_NUM.E;
         cell.style.borderRight = borderThickSolid;
       }
+
+      // update grid's value based on wall's border
+      grid[x][y] = wallState;
 
       cell.x = x;
       cell.y = y;
@@ -99,8 +106,8 @@ function set_cell_style(cell) {
   if(!cell.style.borderLeft) cell.style.borderLeft = cell.borderThinDotted;
 }
 
-async function dfs(x, y) {
-  await sleep(10);
+async function dfs(x, y, grid) {
+  await sleep(100);
 
   const curCell = document.getElementById(`cell${x}_${y}`);
   curCell.classList.add('visited');
@@ -110,35 +117,11 @@ async function dfs(x, y) {
 
     const nxtCell = document.getElementById(`cell${nx}_${ny}`);
     if(nxtCell && !nxtCell.classList.contains('visited')) {
-      if(!is_wall_built(curCell, nxtCell, direction)) {
-        dfs(nx, ny);
+      if(!(grid[x][y] & DIR_NUM[direction]) && !(grid[nx][ny] & DIR_NUM[OPPOSITE[direction]])) {
+        dfs(nx, ny, grid);
       }
     }
   });
-}
-
-function is_wall_built(now, nxt, dir) {
-  switch(dir) {
-    case 'E':
-      if(is_border_thick(now.style.borderRight, nxt.style.borderLeft)) return true;
-      break;
-    case 'W':
-      if(is_border_thick(now.style.borderLeft, nxt.style.borderRight)) return true;
-      break;
-    case 'N':
-      if(is_border_thick(now.style.borderTop, nxt.style.borderBottom)) return true;
-      break;
-    case 'S':
-      if(is_border_thick(now.style.borderBottom, nxt.style.borderTop)) return true;
-      break;
-    default:
-  }
-
-  return false;
-}
-
-function is_border_thick(border, border2) {
-  return border.includes("thick") || border2.includes("thick");
 }
 
 function sleep(ms) {
