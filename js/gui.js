@@ -26,8 +26,6 @@ function visualize_grid(grid) {
   const N = grid.length, M = grid[0].length;
 
   const table = document.createElement("table");
-  const borderThickSolid = "thick solid #000000";
-  const borderThinDotted = "thin dotted #000000";
   set_table_style(table);
 
   for(let x = 0; x < N; x++) {
