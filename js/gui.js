@@ -52,7 +52,7 @@ function visualize_grid(grid) {
       }
 
       // update grid's value based on wall's border
-      grid[x][y] = wallState;
+      grid[x][y] = update_cell(wallState);
 
       cell.x = x;
       cell.y = y;
@@ -88,7 +88,6 @@ function set_table_style(table) {
   table.id = "table_maze";
   table.style.borderSpacing = "0";
   table.style.borderCollapse = "collapse";
-  table.style.padding = "1px";
 }
 
 function set_row_style(row) {
@@ -97,7 +96,7 @@ function set_row_style(row) {
 
 function set_cell_style(cell) {
   cell.id = `cell${cell.x}_${cell.y}`;
-  cell.style.padding = "0.4em 0.4em";
+  cell.style.padding = "0.25em 0.25em";
   if(!cell.style.borderTop) cell.style.borderTop = cell.borderThinDotted;
   if(!cell.style.borderBottom) cell.style.borderBottom = cell.borderThinDotted;
   if(!cell.style.borderRight) cell.style.borderRight = cell.borderThinDotted;
@@ -110,18 +109,24 @@ async function dfs(x, y, grid) {
   const curCell = document.getElementById(`cell${x}_${y}`);
   curCell.classList.add('visited');
 
-  directions.forEach((direction) => {
+  for(const dir in directions) {
+    const direction = directions[dir];
     [nx, ny] = [x + DX[direction], y + DY[direction]];
 
     const nxtCell = document.getElementById(`cell${nx}_${ny}`);
     if(nxtCell && !nxtCell.classList.contains('visited')) {
-      if(!(grid[x][y] & DIR_NUM[direction]) && !(grid[nx][ny] & DIR_NUM[OPPOSITE[direction]])) {
-        dfs(nx, ny, grid);
+      if(!(grid[x][y].wallState & DIR_NUM[direction]) && !(grid[nx][ny].wallState & DIR_NUM[OPPOSITE[direction]])) {
+        await dfs(nx, ny, grid);
       }
     }
-  });
+  }
 }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function update_cell(state) {
+  const obj = {wallState: state, visited: false, distance: 0};
+  return obj;
 }
