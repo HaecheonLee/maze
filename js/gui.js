@@ -108,9 +108,10 @@ async function dfs(x, y, grid) {
 
   const curCell = document.getElementById(`cell${x}_${y}`);
   curCell.classList.add('visited');
-
-  for(const dir in directions) {
-    const direction = directions[dir];
+  curCell.innerHTML += "<span class='blob'></span>";
+  
+  for(const dirIdx in directions) {
+    const direction = directions[dirIdx];
     [nx, ny] = [x + DX[direction], y + DY[direction]];
 
     const nxtCell = document.getElementById(`cell${nx}_${ny}`);
