@@ -29,10 +29,10 @@ table, tr, td {
   position: relative;
 }
 
-.blob {
+.pulsing-cell {
   height: 0.75em;
   width: 0.75em;
-  
+
   position: absolute;
   left: 0;
   right: 0;
@@ -51,8 +51,8 @@ table, tr, td {
 	}
 
 	70% {
-		transform: scale(1.15);
-		box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+		transform: scale(1.05);
+		box-shadow: 0 0 0 0.6em rgba(0, 0, 0, 0);
 	}
 
 	100% {

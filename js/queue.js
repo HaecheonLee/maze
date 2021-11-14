@@ -1,49 +1,60 @@
 class Queue {
   constructor() {
-    this.Node = (val) => {
-      this.val = val;
-      this.next = null;
-    }
+    this.Node = class {
+      constructor(val) {
+        this.val = val;
+        this.next = null;
+      }
+    };
 
-    this.front = null;
-    this.rear = null;
-    this.size = 0;
+    this.head = null;
+    this.tail = null;
+    this.length = 0;
   }
 
   push(x) {
-    const node = new this.Node(x);
+    const newNode = new this.Node(x);
 
-    if(this.isEmpty()) {
-      this.front = this.rear = node;
+    if(this.empty()) {
+      this.head = this.tail = newNode;
     } else {
-      this.rear.next = node;
-      this.rear = this.rear.next;
+      this.tail.next = newNode;
+      this.tail = this.tail.next;
     }
 
-    this.size += 1;
+    this.length += 1;
+    return newNode;
   }
 
   pop() {
-    if(this.isEmpty()) return;
-    this.front = this.front.next;
-    this.size -= 1;
+    if(this.empty()) return;
+    const deletedNode = this.head;
+
+    if(this.size() === 1) {
+      this.head = this.tail = null;
+    } else {
+      this.head = this.head.next;
+    }
+
+    this.length -= 1;
+    return deletedNode;
   }
 
   front() {
-    return this.front.val;
+    return this.head ? this.head.val : null;
   }
 
   back() {
-    return this.rear.val;
+    return this.tail ? this.tail.val : null;
   }
 
   size() {
-    return this.size;
+    return this.length;
   }
 
-  isEmpty() {
-    return this.size === 0;
+  empty() {
+    return this.length === 0;
   }
 }
 
-module.exports = queue;
+// module.exports = Queue;

@@ -1,4 +1,4 @@
-const borderThickSolid = "thick solid #000000";
-const borderThinDotted = "thin dotted #000000";
+const borderImpassable = "thick solid #000000";
+const borderPassable = "thin dotted #000000";
 
-let travelSpeed = 50;
+let travelSpeed = 100;

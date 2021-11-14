@@ -14,11 +14,11 @@ function get_maze_grid() {
 }
 
 function carve_passages_from(curX, curY, N, M, grid) {
-  directions = ['E', 'W', 'N', 'S'];
+  const directions = ['E', 'W', 'N', 'S'];
   shuffle(directions);
 
   directions.forEach((direction) => {
-    [nxtX, nxtY] = [curX + DX[direction], curY + DY[direction]];
+    const [nxtX, nxtY] = [curX + DX[direction], curY + DY[direction]];
 
     // check boundary for the next visiting cell
     if(is_out_of_bound(nxtX, nxtY, N, M)) {

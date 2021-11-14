@@ -8,14 +8,15 @@ function ready(fn) {
 }
 
 ready(function() {
+  smooth_scroll_to_title();
   init();
 });
 
 function init() {
   const grid = get_maze_grid();
   visualize_grid(grid);
-  smooth_scroll_to_title();
-  dfs(0, 0, grid);
+  // dfs(0, 0);
+  bfs(0, 0);
 }
 
 function smooth_scroll_to_title() {
@@ -38,31 +39,34 @@ function visualize_grid(grid) {
 
       if(!(grid[x][y] & DIR_NUM.S)) {
         wallState |= DIR_NUM.S;
-        cell.style.borderBottom = borderThickSolid;
+        cell.style.borderBottom = borderImpassable;
       }
 
       if(grid[x][y] & DIR_NUM.E) {
         if(!((grid[x][y] | grid[x][y + 1]) & DIR_NUM.S)) {
           wallState |= DIR_NUM.S;
-          cell.style.borderBottom = borderThickSolid;
+          cell.style.borderBottom = borderImpassable;
         }
       } else {
         wallState |= DIR_NUM.E;
-        cell.style.borderRight = borderThickSolid;
+        cell.style.borderRight = borderImpassable;
       }
 
       // update grid's value based on wall's border
-      grid[x][y] = update_cell(wallState);
+      // grid[x][y] = update_cell_value(wallState);
 
       cell.x = x;
       cell.y = y;
-      cell.borderThinDotted = borderThinDotted;
+      cell.borderThinDotted = borderPassable;
+      cell.wallState = wallState;
+      cell.visited = false;
+      cell.distance = 0;
       set_cell_style(cell);
     }
   }
 
   // build border top and left of the grid
-  build_outer_wall(table, N, M, borderThickSolid);
+  build_outer_wall(table, N, M);
 
   // (0,0) and (N - 1, N - 1) are entrance and exit
   table.rows[0].cells[0].style.borderTop =
@@ -72,15 +76,15 @@ function visualize_grid(grid) {
   app.appendChild(table);
 }
 
-function build_outer_wall(table, N, M, borderStyle) {
+function build_outer_wall(table, N, M) {
   // borderLeft
   for(let i = 0; i < N; i++) {
-    table.rows[i].cells[0].style.borderLeft = borderStyle;
+    table.rows[i].cells[0].style.borderLeft = borderImpassable;
   }
 
   // borderTop
   for(let j = 0; j < M; j++) {
-    table.rows[0].cells[j].style.borderTop = borderStyle;
+    table.rows[0].cells[j].style.borderTop = borderImpassable;
   }
 }
 
@@ -103,21 +107,53 @@ function set_cell_style(cell) {
   if(!cell.style.borderLeft) cell.style.borderLeft = cell.borderThinDotted;
 }
 
-async function dfs(x, y, grid) {
+function update_cell_value(state) {
+  const obj = {wallState: state, visited: false, distance: -1};
+  return obj;
+}
+
+async function dfs(x, y) {
   await sleep(travelSpeed);
 
   const curCell = document.getElementById(`cell${x}_${y}`);
-  curCell.classList.add('visited');
-  curCell.innerHTML += "<span class='blob'></span>";
-  
-  for(const dirIdx in directions) {
-    const direction = directions[dirIdx];
-    [nx, ny] = [x + DX[direction], y + DY[direction]];
+  for(const idx in DIRS) {
+    const direction = DIRS[idx];
+    const [nx, ny] = [x + DX[direction], y + DY[direction]];
 
     const nxtCell = document.getElementById(`cell${nx}_${ny}`);
-    if(nxtCell && !nxtCell.classList.contains('visited')) {
-      if(!(grid[x][y].wallState & DIR_NUM[direction]) && !(grid[nx][ny].wallState & DIR_NUM[OPPOSITE[direction]])) {
-        await dfs(nx, ny, grid);
+    if(is_cell_not_visitied(nxtCell)) {
+      if(!is_wall_built(curCell, DIR_NUM[direction]) && ! is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
+        update_cell_visited(curCell);
+        nxtCell.visited = true;
+        await dfs(nx, ny);
+      }
+    }
+  }
+}
+
+function bfs(startX, startY, grid) {
+  /* calculates distance from (0,0) */
+
+  const q = new Queue();
+  q.push([startX, startY]);
+
+  while(!q.empty()) {
+    const [x, y] = q.front();
+    const curCell = document.getElementById(`cell${x}_${y}`);
+    q.pop();
+
+    for(const idx in DIRS) {
+      const direction = DIRS[idx];
+      const [nx, ny] = [x + DX[direction], y + DY[direction]];
+
+      const nxtCell = document.getElementById(`cell${nx}_${ny}`);
+      if(is_cell_not_visitied(nxtCell)) {
+        if(!is_wall_built(curCell, DIR_NUM[direction]) && ! is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
+          // update_cell_visited(nxtCell);
+          nxtCell.visited = true;
+          nxtCell.distance = curCell.distance + 1;
+          q.push([nx, ny]);
+        }
       }
     }
   }
@@ -127,7 +163,18 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function update_cell(state) {
-  const obj = {wallState: state, visited: false, distance: 0};
-  return obj;
+function update_cell_visited(curCell) {
+  const span = document.createElement('span');
+  span.classList.add('pulsing-cell');
+
+  curCell.classList.add('visited');
+  curCell.appendChild(span);
+}
+
+function is_cell_not_visitied(visitingCell) {
+  return visitingCell && !visitingCell.visited;
+}
+
+function is_wall_built(visitingCell, direction) {
+  return visitingCell.wallState & direction;
 }
