@@ -21,11 +21,14 @@ describe("Queue Class Testing", ()=> {
   it("push(x): the head indicates first, and the tail indicates last", () => {
     const q = new Queue();
 
-    for(let i = 1; i <= 10; i++) {
+    const SZ = 10;
+    for(let i = 1; i <= SZ; i++) {
       const newNode = q.push(i);
       expect(q.back()).toEqual(newNode.val);
       // console.log(`${i} is `, q.back());
     }
+
+    expect(q.size()).toEqual(SZ);
   });
 
   describe("pop() testing", () => {
