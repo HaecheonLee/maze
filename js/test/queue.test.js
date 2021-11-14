@@ -28,18 +28,39 @@ describe("Queue Class Testing", ()=> {
     }
   });
 
-  it("pop(): the head and the tail are null, when empty", () => {
-    const q = new Queue();
+  describe("pop() testing", () => {
+    it("pop(): remove the first element from the list", () => {
+      const q = new Queue();
 
-    q.push(1);
-    for(let i = 2; i <= 10; i++) {
-      q.pop();
-      q.push(i);
+      q.push(1);
+      for(let i = 2; i <= 10; i++) {
+        q.pop();
+        q.push(i);
 
-      expect(q.front()).toEqual(i);
-      expect(q.back()).toEqual(i);
-    }
+        expect(q.front()).toEqual(i);
+        expect(q.back()).toEqual(i);
+      }
 
-    expect(q.size()).toEqual(1);
-  });
+      expect(q.size()).toEqual(1);
+    });
+
+    it("pop(): the head and the tail are null, when empty", () => {
+      const q = new Queue();
+
+      for(let i = 1; i <= 1000; i++) {
+        q.push(i);
+      }
+
+      expect(q.front()).toEqual(expect.anything());
+      expect(q.back()).toEqual(expect.anything());
+
+      // make the list empty
+      while(!q.empty()) {
+        q.pop();
+      }
+
+      expect(q.front()).toBeNull();
+      expect(q.back()).toBeNull();
+    });
+  })
 });
