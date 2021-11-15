@@ -21,12 +21,14 @@ html, body {
   font-family: sans-serif;
 }
 
-.visited {
-  background: orange;
-}
 
 table, tr, td {
   position: relative;
+}
+
+.visited {
+  background-color: orange;
+  background-clip: padding-box; /* for firefox */
 }
 
 .pulsing-cell {
@@ -42,6 +44,7 @@ table, tr, td {
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);
   transform: scale(1);
   animation: pulse 0.5s;
+  -moz-animation-name: pulse 0.5s;
 }
 
 @keyframes pulse {
