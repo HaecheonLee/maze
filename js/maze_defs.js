@@ -1,4 +1,4 @@
-const MIN_N = 50, MAX_N = 25;
+const MIN_N = 50, MAX_N = 10;
 const DIRS = ['E', 'W', 'N', 'S'];
 const DIR_NUM = {'E': 1, 'W': 2, 'N': 4, 'S': 8};
 const DX = { 'E': 0, 'W': 0, 'N': -1, 'S': 1 };

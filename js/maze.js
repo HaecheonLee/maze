@@ -1,5 +1,5 @@
 function get_maze_grid() {
-  // the size of grid (N, M): defined in maze_defs.js 
+  // the size of grid (N, M): defined in maze_defs.js
   const N = Math.floor(Math.random() * MAX_N) + MIN_N;
   const M = Math.floor(Math.random() * MAX_N) + MIN_N;
   const grid = [...Array(N)].map((x) => Array(M).fill(0));

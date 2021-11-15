@@ -14,9 +14,13 @@ ready(function() {
 
 function init() {
   const grid = get_maze_grid();
+  const [startX, startY] = [0, 0];
+  const [endX, endY] = [grid.length - 1, grid[0].length - 1];
+
   visualize_grid(grid);
-  // dfs(0, 0);
-  bfs(0, 0, grid.length - 1, grid[0].length - 1);
+  // dfs(startX, startY);
+  bfs(startX, startY);
+  travel_shortest_path(startX, startY, endX, endY);
 }
 
 function smooth_scroll_to_title() {
@@ -131,12 +135,13 @@ async function dfs(x, y) {
       }
     }
   }
+
+  await sleep(travelSpeed);
+  curCell.style.opacity = '0.5';
 }
 
-async function bfs(startX, startY, endX, endY) {
-  /* calculates distance from (0,0) */
-  const tracking = [];
-
+function bfs(startX, startY) {
+  /* calculates distance from (startX, startY) */
   const q = new Queue();
   const startingCell = document.getElementById(get_cell_id(startX, startY));
   startingCell.visited = true;
@@ -146,9 +151,6 @@ async function bfs(startX, startY, endX, endY) {
     const [x, y] = q.front();
     const curCell = document.getElementById(get_cell_id(x, y));
     q.pop();
-
-    // path tracking n-th [x, y]
-    tracking.push([x, y]);
 
     for(const idx in DIRS) {
       const direction = DIRS[idx];
@@ -165,7 +167,9 @@ async function bfs(startX, startY, endX, endY) {
       }
     }
   }
+}
 
+async function travel_shortest_path(startX, startY, endX, endY) {
   // shortest path: from [endX, endY] to [startX, startY]
   const path = [];
   let curCell = document.getElementById(get_cell_id(endX, endY));
