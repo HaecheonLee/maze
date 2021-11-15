@@ -61,6 +61,7 @@ function visualize_grid(grid) {
       cell.wallState = wallState;
       cell.visited = false;
       cell.distance = 0;
+      cell.prev = null; // will be used in bfs for tracking path
       set_cell_style(cell);
     }
   }
@@ -99,7 +100,7 @@ function set_row_style(row) {
 }
 
 function set_cell_style(cell) {
-  cell.id = `cell${cell.x}_${cell.y}`;
+  cell.id = get_cell_id(cell.x, cell.y);
   cell.style.padding = "0.25em 0.25em";
   if(!cell.style.borderTop) cell.style.borderTop = cell.borderThinDotted;
   if(!cell.style.borderBottom) cell.style.borderBottom = cell.borderThinDotted;
@@ -115,47 +116,63 @@ function update_cell_value(state) {
 async function dfs(x, y) {
   await sleep(travelSpeed);
 
-  const curCell = document.getElementById(`cell${x}_${y}`);
+  const curCell = document.getElementById(get_cell_id(x, y));
+  update_cell_visited(curCell);
+  curCell.visited = true;
+
   for(const idx in DIRS) {
     const direction = DIRS[idx];
     const [nx, ny] = [x + DX[direction], y + DY[direction]];
 
-    const nxtCell = document.getElementById(`cell${nx}_${ny}`);
+    const nxtCell = document.getElementById(get_cell_id(nx, ny));
     if(is_cell_not_visitied(nxtCell)) {
       if(!is_wall_built(curCell, DIR_NUM[direction]) && ! is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
-        update_cell_visited(curCell);
-        nxtCell.visited = true;
         await dfs(nx, ny);
       }
     }
   }
 }
 
-function bfs(startX, startY, grid) {
+async function bfs(startX, startY) {
   /* calculates distance from (0,0) */
 
+  let tracking = [];
+
   const q = new Queue();
+  const curCell = document.getElementById(get_cell_id(startX, startY));
+  curCell.visited = true;
+  update_cell_visited(curCell);
   q.push([startX, startY]);
 
   while(!q.empty()) {
     const [x, y] = q.front();
-    const curCell = document.getElementById(`cell${x}_${y}`);
+    const curCell = document.getElementById(get_cell_id(x, y));
     q.pop();
+
+    tracking.push([x, y]);
 
     for(const idx in DIRS) {
       const direction = DIRS[idx];
       const [nx, ny] = [x + DX[direction], y + DY[direction]];
 
-      const nxtCell = document.getElementById(`cell${nx}_${ny}`);
+      const nxtCell = document.getElementById(get_cell_id(nx, ny));
       if(is_cell_not_visitied(nxtCell)) {
         if(!is_wall_built(curCell, DIR_NUM[direction]) && ! is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
-          // update_cell_visited(nxtCell);
+          nxtCell.prev = [x, y];
           nxtCell.visited = true;
           nxtCell.distance = curCell.distance + 1;
           q.push([nx, ny]);
         }
       }
     }
+  }
+
+  for(let i = 0; i < tracking.length; await i++) {
+    await sleep(travelSpeed * 1.25);
+
+    const [x, y] = tracking[i];
+    const curCell = document.getElementById(get_cell_id(x, y));
+    update_cell_visited(curCell);
   }
 }
 
@@ -177,4 +194,8 @@ function is_cell_not_visitied(visitingCell) {
 
 function is_wall_built(visitingCell, direction) {
   return visitingCell.wallState & direction;
+}
+
+function get_cell_id(x, y) {
+  return `cell${x}_${y}`;
 }
