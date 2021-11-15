@@ -16,7 +16,7 @@ function init() {
   const grid = get_maze_grid();
   visualize_grid(grid);
   // dfs(0, 0);
-  bfs(0, 0);
+  bfs(0, 0, grid.length - 1, grid[0].length - 1);
 }
 
 function smooth_scroll_to_title() {
@@ -133,15 +133,13 @@ async function dfs(x, y) {
   }
 }
 
-async function bfs(startX, startY) {
+async function bfs(startX, startY, endX, endY) {
   /* calculates distance from (0,0) */
-
-  let tracking = [];
+  const tracking = [];
 
   const q = new Queue();
-  const curCell = document.getElementById(get_cell_id(startX, startY));
-  curCell.visited = true;
-  update_cell_visited(curCell);
+  const startingCell = document.getElementById(get_cell_id(startX, startY));
+  startingCell.visited = true;
   q.push([startX, startY]);
 
   while(!q.empty()) {
@@ -149,6 +147,7 @@ async function bfs(startX, startY) {
     const curCell = document.getElementById(get_cell_id(x, y));
     q.pop();
 
+    // path tracking n-th [x, y]
     tracking.push([x, y]);
 
     for(const idx in DIRS) {
@@ -158,7 +157,7 @@ async function bfs(startX, startY) {
       const nxtCell = document.getElementById(get_cell_id(nx, ny));
       if(is_cell_not_visitied(nxtCell)) {
         if(!is_wall_built(curCell, DIR_NUM[direction]) && ! is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
-          nxtCell.prev = [x, y];
+          nxtCell.prev = curCell;
           nxtCell.visited = true;
           nxtCell.distance = curCell.distance + 1;
           q.push([nx, ny]);
@@ -167,10 +166,18 @@ async function bfs(startX, startY) {
     }
   }
 
-  for(let i = 0; i < tracking.length; await i++) {
-    await sleep(travelSpeed * 1.25);
+  // shortest path: from [endX, endY] to [startX, startY]
+  const path = [];
+  let curCell = document.getElementById(get_cell_id(endX, endY));
+  while(curCell) {
+    path.push([curCell.x, curCell.y]);
+    curCell = curCell.prev;
+  }
 
-    const [x, y] = tracking[i];
+  for(let i = path.length - 1; i >= 0; i--) {
+    await sleep(travelSpeed * 0.25);
+
+    const [x, y] = path[i];
     const curCell = document.getElementById(get_cell_id(x, y));
     update_cell_visited(curCell);
   }
