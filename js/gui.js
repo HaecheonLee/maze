@@ -16,22 +16,21 @@ function init() {
   const grid = get_maze_grid();
   const [startX, startY] = [0, 0];
   const [endX, endY] = [grid.length - 1, grid[0].length - 1];
-
   visualize_grid(grid);
-  dfs(startX, startY);
 
-  // bfs(startX, startY);
+  // visualize_tracking(dfs(startX, startY));
+  visualize_tracking(bfs(startX, startY));
   // travel_shortest_path(startX, startY, endX, endY);
 }
 
 function smooth_scroll_to_title() {
-  document.getElementsByClassName("title")[0].scrollIntoView();
+  document.getElementsByClassName('title')[0].scrollIntoView();
 }
 
 function visualize_grid(grid) {
   const N = grid.length, M = grid[0].length;
 
-  const table = document.createElement("table");
+  const table = document.createElement('table');
   set_table_style(table);
 
   for(let x = 0; x < N; x++) {
@@ -73,13 +72,13 @@ function visualize_grid(grid) {
 
   // (0,0) and (N - 1, N - 1) are entrance and exit
   table.rows[0].cells[0].style.borderTop =
-    table.rows[N - 1].cells[M - 1].style.borderBottom = "";
+    table.rows[N - 1].cells[M - 1].style.borderBottom = '';
 
   // set starting & ending attribute for each point
   table.rows[0].cells[0].setAttribute('data-starting', true);
   table.rows[N - 1].cells[M - 1].setAttribute('data-ending', true);
 
-  const app = document.getElementById("app");
+  const app = document.getElementById('app');
   app.appendChild(table);
 }
 
@@ -96,34 +95,34 @@ function build_outer_wall(table, N, M) {
 }
 
 function set_table_style(table) {
-  table.id = "table_maze";
-  table.style.borderSpacing = "0";
-  table.style.borderCollapse = "collapse";
+  table.id = 'table_maze';
+  table.style.borderSpacing = '0';
+  table.style.borderCollapse = 'collapse';
 }
 
 function set_row_style(row) {
-  row.style.position = "relative";
+  row.style.position = 'relative';
 }
 
 function set_cell_style(cell) {
   cell.id = get_cell_id(cell.x, cell.y);
-  cell.style.padding = "0.25em 0.25em";
+  cell.style.padding = '0.25em 0.25em';
   if(!cell.style.borderTop) cell.style.borderTop = cell.borderThinDotted;
   if(!cell.style.borderBottom) cell.style.borderBottom = cell.borderThinDotted;
   if(!cell.style.borderRight) cell.style.borderRight = cell.borderThinDotted;
   if(!cell.style.borderLeft) cell.style.borderLeft = cell.borderThinDotted;
 }
 
-async function dfs(x, y) {
-  await sleep(travelSpeed);
+function dfs(x, y) {
+  const tracking = [];
 
   const curCell = document.getElementById(get_cell_id(x, y));
-  update_cell_visited(curCell);
   curCell.visited = true;
+  tracking.push([x, y, 'rgba(255, 165, 0, 1)']);
 
-  // randomized traveseing direction
+  /* randomized traversing direction */
   const directions = [...DIRS];
-  shuffle(directions);
+  shuffle(directions);  // implemented in /js/maze.js
 
   for(const idx in directions) {
     const direction = directions[idx];
@@ -131,17 +130,19 @@ async function dfs(x, y) {
 
     const nxtCell = document.getElementById(get_cell_id(nx, ny));
     if(is_cell_not_visitied(nxtCell)) {
-      if(!is_wall_built(curCell, DIR_NUM[direction]) && ! is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
-        await dfs(nx, ny);
+      if(!is_wall_built(curCell, DIR_NUM[direction]) && !is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
+        tracking.push(...dfs(nx, ny));
       }
     }
   }
 
-  await sleep(travelSpeed);
-  curCell.style.opacity = '0.5';
+  tracking.push([x, y, 'rgba(255, 165, 0, .5)']);
+  return tracking;
 }
 
-async function bfs(startX, startY) {
+function bfs(startX, startY) {
+  const tracking = [];
+
   const q = new Queue();
   const directions = [...DIRS];
   const startingCell = document.getElementById(get_cell_id(startX, startY));
@@ -149,30 +150,40 @@ async function bfs(startX, startY) {
   q.push([startX, startY]);
 
   while(!q.empty()) {
-    await sleep(travelSpeed);
-
     const [x, y] = q.front();
     const curCell = document.getElementById(get_cell_id(x, y));
-    update_cell_visited(curCell);
+    tracking.push([x, y, 'rgba(255, 165, 0, 1)']);
     q.pop();
 
-    // randomized traveseing direction
-    shuffle(directions);
-    
-    for(const idx in DIRS) {
-      const direction = DIRS[idx];
+    /* randomized traversing direction */
+    shuffle(directions); // implemented in /js/maze.js
+
+    for(const idx in directions) {
+      const direction = directions[idx];
       const [nx, ny] = [x + DX[direction], y + DY[direction]];
 
       const nxtCell = document.getElementById(get_cell_id(nx, ny));
       if(is_cell_not_visitied(nxtCell)) {
-        if(!is_wall_built(curCell, DIR_NUM[direction]) && ! is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
+        if(!is_wall_built(curCell, DIR_NUM[direction]) && !is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
           nxtCell.prev = curCell;
           nxtCell.visited = true;
           nxtCell.distance = curCell.distance + 1;
-          await q.push([nx, ny]);
+          q.push([nx, ny]);
         }
       }
     }
+  }
+
+  return tracking;
+}
+
+async function visualize_tracking(tracking) {
+  for(let i = 0; i < tracking.length; i++) {
+    const [x, y, cellColor] = tracking[i];
+    const curCell = document.getElementById(get_cell_id(x, y));
+    update_cell_visited(curCell, cellColor);
+
+    await sleep(travelSpeed);
   }
 }
 
@@ -198,11 +209,11 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function update_cell_visited(curCell) {
+function update_cell_visited(curCell, visitedCellBg = 'orange') {
   const span = document.createElement('span');
   span.classList.add('pulsing-cell');
 
-  curCell.classList.add('visited');
+  curCell.style.backgroundColor = visitedCellBg;
   curCell.appendChild(span);
 }
 
