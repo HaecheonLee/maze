@@ -121,8 +121,12 @@ async function dfs(x, y) {
   update_cell_visited(curCell);
   curCell.visited = true;
 
-  for(const idx in DIRS) {
-    const direction = DIRS[idx];
+  // randomized traveseing direction
+  const directions = [...DIRS];
+  shuffle(directions);
+
+  for(const idx in directions) {
+    const direction = directions[idx];
     const [nx, ny] = [x + DX[direction], y + DY[direction]];
 
     const nxtCell = document.getElementById(get_cell_id(nx, ny));
@@ -139,6 +143,7 @@ async function dfs(x, y) {
 
 async function bfs(startX, startY) {
   const q = new Queue();
+  const directions = [...DIRS];
   const startingCell = document.getElementById(get_cell_id(startX, startY));
   startingCell.visited = true;
   q.push([startX, startY]);
@@ -151,6 +156,9 @@ async function bfs(startX, startY) {
     update_cell_visited(curCell);
     q.pop();
 
+    // randomized traveseing direction
+    shuffle(directions);
+    
     for(const idx in DIRS) {
       const direction = DIRS[idx];
       const [nx, ny] = [x + DX[direction], y + DY[direction]];
