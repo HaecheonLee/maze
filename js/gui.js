@@ -18,9 +18,10 @@ function init() {
   const [endX, endY] = [grid.length - 1, grid[0].length - 1];
 
   visualize_grid(grid);
-  // dfs(startX, startY);
-  bfs(startX, startY);
-  travel_shortest_path(startX, startY, endX, endY);
+  dfs(startX, startY);
+
+  // bfs(startX, startY);
+  // travel_shortest_path(startX, startY, endX, endY);
 }
 
 function smooth_scroll_to_title() {
@@ -56,9 +57,6 @@ function visualize_grid(grid) {
         cell.style.borderRight = borderImpassable;
       }
 
-      // update grid's value based on wall's border
-      // grid[x][y] = update_cell_value(wallState);
-
       cell.x = x;
       cell.y = y;
       cell.borderThinDotted = borderPassable;
@@ -76,6 +74,10 @@ function visualize_grid(grid) {
   // (0,0) and (N - 1, N - 1) are entrance and exit
   table.rows[0].cells[0].style.borderTop =
     table.rows[N - 1].cells[M - 1].style.borderBottom = "";
+
+  // set starting & ending attribute for each point
+  table.rows[0].cells[0].setAttribute('data-starting', true);
+  table.rows[N - 1].cells[M - 1].setAttribute('data-ending', true);
 
   const app = document.getElementById("app");
   app.appendChild(table);
@@ -112,11 +114,6 @@ function set_cell_style(cell) {
   if(!cell.style.borderLeft) cell.style.borderLeft = cell.borderThinDotted;
 }
 
-function update_cell_value(state) {
-  const obj = {wallState: state, visited: false, distance: -1};
-  return obj;
-}
-
 async function dfs(x, y) {
   await sleep(travelSpeed);
 
@@ -140,16 +137,18 @@ async function dfs(x, y) {
   curCell.style.opacity = '0.5';
 }
 
-function bfs(startX, startY) {
-  /* calculates distance from (startX, startY) */
+async function bfs(startX, startY) {
   const q = new Queue();
   const startingCell = document.getElementById(get_cell_id(startX, startY));
   startingCell.visited = true;
   q.push([startX, startY]);
 
   while(!q.empty()) {
+    await sleep(travelSpeed);
+
     const [x, y] = q.front();
     const curCell = document.getElementById(get_cell_id(x, y));
+    update_cell_visited(curCell);
     q.pop();
 
     for(const idx in DIRS) {
@@ -162,7 +161,7 @@ function bfs(startX, startY) {
           nxtCell.prev = curCell;
           nxtCell.visited = true;
           nxtCell.distance = curCell.distance + 1;
-          q.push([nx, ny]);
+          await q.push([nx, ny]);
         }
       }
     }
