@@ -18,8 +18,8 @@ function init() {
   const [endX, endY] = [grid.length - 1, grid[0].length - 1];
   visualize_grid(grid);
 
-  visualize_tracking(dfs(startX, startY), endX, endY);
-  // visualize_tracking(bfs(startX, startY));
+  // visualize_tracking(dfs(startX, startY), endX, endY);
+  visualize_tracking(bfs(startX, startY));
   // travel_shortest_path(startX, startY, endX, endY);
 }
 
@@ -61,7 +61,7 @@ function visualize_grid(grid) {
       cell.borderThinDotted = borderPassable;
       cell.wallState = wallState;
       cell.visited = false;
-      cell.distance = 0;
+      cell.distance = -1;
       cell.prev = null; // will be used in bfs for tracking path
       set_cell_style(cell);
     }
@@ -146,13 +146,14 @@ function bfs(startX, startY) {
   const q = new Queue();
   const directions = [...DIRS];
   const startingCell = document.getElementById(get_cell_id(startX, startY));
+  startingCell.distance = 0;
   startingCell.visited = true;
   q.push([startX, startY]);
 
   while(!q.empty()) {
     const [x, y] = q.front();
     const curCell = document.getElementById(get_cell_id(x, y));
-    tracking.push([x, y, 'rgba(255, 165, 0, 1)']);
+    tracking.push([x, y, `rgba(255, 165, 0, min(1, calc(${curCell.distance} * 0.0125 + 0.3)))`]);
     q.pop();
 
     /* randomized traversing direction */
