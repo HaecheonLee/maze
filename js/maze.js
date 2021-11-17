@@ -14,7 +14,7 @@ function get_maze_grid() {
 }
 
 function carve_passages_from(curX, curY, N, M, grid) {
-  const directions = ['E', 'W', 'N', 'S'];
+  const directions = [...DIRS];
   shuffle(directions);
 
   directions.forEach((direction) => {

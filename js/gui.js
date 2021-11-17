@@ -18,8 +18,8 @@ function init() {
   const [endX, endY] = [grid.length - 1, grid[0].length - 1];
   visualize_grid(grid);
 
-  // visualize_tracking(dfs(startX, startY));
-  visualize_tracking(bfs(startX, startY));
+  visualize_tracking(dfs(startX, startY), endX, endY);
+  // visualize_tracking(bfs(startX, startY));
   // travel_shortest_path(startX, startY, endX, endY);
 }
 
@@ -177,12 +177,15 @@ function bfs(startX, startY) {
   return tracking;
 }
 
-async function visualize_tracking(tracking) {
+async function visualize_tracking(tracking, endX = -1, endY = -1) {
+  // If endX & endY unset, it will display how it traverses each cell in a grid
+
   for(let i = 0; i < tracking.length; i++) {
     const [x, y, cellColor] = tracking[i];
     const curCell = document.getElementById(get_cell_id(x, y));
     update_cell_visited(curCell, cellColor);
 
+    if(x === endX && y == endY) break;
     await sleep(travelSpeed);
   }
 }
@@ -191,6 +194,7 @@ async function travel_shortest_path(startX, startY, endX, endY) {
   // shortest path: from [endX, endY] to [startX, startY]
   const path = [];
   let curCell = document.getElementById(get_cell_id(endX, endY));
+
   while(curCell) {
     path.push([curCell.x, curCell.y]);
     curCell = curCell.prev;
