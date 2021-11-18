@@ -31,6 +31,10 @@ table, tr, td {
   background-clip: padding-box; /* for firefox */
 }
 
+.command-container {
+  margin-bottom: 1.85em;
+}
+
 .pulsing-cell {
   height: 0.75em;
   width: 0.75em;

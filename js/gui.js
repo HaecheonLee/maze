@@ -13,21 +13,61 @@ ready(function() {
 });
 
 function init() {
-  const grid = get_maze_grid();
-  const [startX, startY] = [0, 0];
-  const [endX, endY] = [grid.length - 1, grid[0].length - 1];
-  visualize_grid(grid);
+  visualize_grid();
 
   // visualize_tracking(dfs(startX, startY), endX, endY);
-  visualize_tracking(bfs(startX, startY));
+  // visualize_tracking(bfs(startX, startY));
   // travel_shortest_path(startX, startY, endX, endY);
+}
+
+function visualize_grid() {
+  const grid = get_maze_grid();
+  set_grid(grid);
+}
+
+function traverse_by_dfs() {
+  const startingCell = get_starting_cell();
+  const tracking_by_dfs = dfs(startingCell.x, startingCell.y);
+
+  visualize_tracking(tracking_by_dfs);
+}
+
+function traverse_by_bfs() {
+  const startingCell = get_starting_cell();
+  const tracking_by_bfs = bfs(startingCell.x, startingCell.y);
+
+  visualize_tracking(tracking_by_bfs);
+}
+
+function escape_by_dfs() {
+  const startingCell = get_starting_cell();
+  const endingCell = get_ending_cell();
+  const tracking_by_dfs = dfs(startingCell.x, startingCell.y);
+
+  visualize_tracking(tracking_by_dfs, endingCell.x, endingCell.y);
+}
+
+function escape_by_bfs() {
+  const startingCell = get_starting_cell();
+  const endingCell = get_ending_cell();
+  const tracking_by_bfs = bfs(startingCell.x, startingCell.y);
+
+  visualize_tracking(tracking_by_bfs, endingCell.x, endingCell.y);
+}
+
+function escape_by_shortest_path() {
+  const startingCell = get_starting_cell();
+  const endingCell = get_ending_cell();
+
+  bfs(startingCell.x, startingCell.y);
+  travel_shortest_path(startingCell.x, startingCell.y, endingCell.x, endingCell.y);
 }
 
 function smooth_scroll_to_title() {
   document.getElementsByClassName('title')[0].scrollIntoView();
 }
 
-function visualize_grid(grid) {
+function set_grid(grid) {
   const N = grid.length, M = grid[0].length;
 
   const table = document.createElement('table');
@@ -60,9 +100,7 @@ function visualize_grid(grid) {
       cell.y = y;
       cell.borderThinDotted = borderPassable;
       cell.wallState = wallState;
-      cell.visited = false;
-      cell.distance = -1;
-      cell.prev = null; // will be used in bfs for tracking path
+      reset_cell(cell);
       set_cell_style(cell);
     }
   }
@@ -104,6 +142,12 @@ function set_row_style(row) {
   row.style.position = 'relative';
 }
 
+function reset_cell(cell) {
+  cell.visited = false;
+  cell.distance = -1;
+  cell.prev = null; // will be used in bfs for tracking path
+}
+
 function set_cell_style(cell) {
   cell.id = get_cell_id(cell.x, cell.y);
   cell.style.padding = '0.25em 0.25em';
@@ -142,10 +186,12 @@ function dfs(x, y) {
 
 function bfs(startX, startY) {
   const tracking = [];
-
   const q = new Queue();
   const directions = [...DIRS];
-  const startingCell = document.getElementById(get_cell_id(startX, startY));
+  const startingCell = get_starting_cell();
+  const endingCell = get_ending_cell();
+  const totalCells = (endingCell.x + 1) * (endingCell.y + 1);
+
   startingCell.distance = 0;
   startingCell.visited = true;
   q.push([startX, startY]);
@@ -153,7 +199,9 @@ function bfs(startX, startY) {
   while(!q.empty()) {
     const [x, y] = q.front();
     const curCell = document.getElementById(get_cell_id(x, y));
-    const transparency = curCell.distance * 0.0125 + 0.25;
+    const transparency = Math.min(1, 0.15 + curCell.distance / totalCells * 1.25);
+    console.log(transparency);
+
     tracking.push([x, y, `rgba(255, 165, 0, ${transparency})`]);
     q.pop();
 
@@ -219,7 +267,6 @@ function update_cell_visited(curCell, visitedCellBg = 'orange') {
   const span = document.createElement('span');
   span.classList.add('pulsing-cell');
 
-  console.log(visitedCellBg);
   curCell.style.background = visitedCellBg;
   curCell.style.backgroundClip = 'padding-box';   // for firefox
   curCell.appendChild(span);
@@ -235,4 +282,12 @@ function is_wall_built(visitingCell, direction) {
 
 function get_cell_id(x, y) {
   return `cell${x}_${y}`;
+}
+
+function get_starting_cell() {
+  return document.querySelector('[data-starting=true]');
+}
+
+function get_ending_cell() {
+  return document.querySelector('[data-ending=true]');
 }
