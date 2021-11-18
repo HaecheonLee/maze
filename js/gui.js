@@ -25,52 +25,75 @@ function visualize_grid() {
   set_grid(grid);
 }
 
+async function run(func) {
+  if(!running) {
+    running = true;
+    await func();
+    running = false;
+  }
+}
+
 function traverse_by_dfs() {
-  reset_grid();
+  const asyncFunc = async() => {
+    reset_grid();
+    const startingCell = get_starting_cell();
+    const tracking_by_dfs = dfs(startingCell.x, startingCell.y);
 
-  const startingCell = get_starting_cell();
-  const tracking_by_dfs = dfs(startingCell.x, startingCell.y);
+    await visualize_tracking(tracking_by_dfs);
+  }
 
-  visualize_tracking(tracking_by_dfs);
+  run(asyncFunc);
 }
 
 function traverse_by_bfs() {
-  reset_grid();
+  const asyncFunc = async() => {
+    reset_grid();
+    const startingCell = get_starting_cell();
+    const tracking_by_bfs = bfs(startingCell.x, startingCell.y);
 
-  const startingCell = get_starting_cell();
-  const tracking_by_bfs = bfs(startingCell.x, startingCell.y);
+    await visualize_tracking(tracking_by_bfs);
+  }
 
-  visualize_tracking(tracking_by_bfs);
+  run(asyncFunc);
 }
 
 function escape_by_dfs() {
-  reset_grid();
+  const asyncFunc = async() => {
+    reset_grid();
+    const startingCell = get_starting_cell();
+    const endingCell = get_ending_cell();
+    const tracking_by_dfs = dfs(startingCell.x, startingCell.y);
 
-  const startingCell = get_starting_cell();
-  const endingCell = get_ending_cell();
-  const tracking_by_dfs = dfs(startingCell.x, startingCell.y);
+    await visualize_tracking(tracking_by_dfs, endingCell.x, endingCell.y);
+  }
 
-  visualize_tracking(tracking_by_dfs, endingCell.x, endingCell.y);
+  run(asyncFunc);
 }
 
 function escape_by_bfs() {
-  reset_grid();
+  const asyncFunc = async() => {
+    reset_grid();
+    const startingCell = get_starting_cell();
+    const endingCell = get_ending_cell();
+    const tracking_by_bfs = bfs(startingCell.x, startingCell.y);
 
-  const startingCell = get_starting_cell();
-  const endingCell = get_ending_cell();
-  const tracking_by_bfs = bfs(startingCell.x, startingCell.y);
+    await visualize_tracking(tracking_by_bfs, endingCell.x, endingCell.y);
+  }
 
-  visualize_tracking(tracking_by_bfs, endingCell.x, endingCell.y);
+  run(asyncFunc);
 }
 
 function escape_by_shortest_path() {
-  reset_grid();
+  const asyncFunc = async() => {
+    reset_grid();
+    const startingCell = get_starting_cell();
+    const endingCell = get_ending_cell();
 
-  const startingCell = get_starting_cell();
-  const endingCell = get_ending_cell();
+    bfs(startingCell.x, startingCell.y);
+    await travel_shortest_path(startingCell.x, startingCell.y, endingCell.x, endingCell.y);
+  }
 
-  bfs(startingCell.x, startingCell.y);
-  travel_shortest_path(startingCell.x, startingCell.y, endingCell.x, endingCell.y);
+  run(asyncFunc);
 }
 
 function smooth_scroll_to_title() {
@@ -222,7 +245,6 @@ function bfs(startX, startY) {
     const [x, y] = q.front();
     const curCell = get_cell(x, y);
     const transparency = Math.min(1, 0.15 + curCell.distance / totalCells * 1.25);
-    console.log(transparency);
 
     tracking.push([x, y, `rgba(255, 165, 0, ${transparency})`]);
     q.pop();
@@ -251,7 +273,6 @@ function bfs(startX, startY) {
 
 async function visualize_tracking(tracking, endX = -1, endY = -1) {
   // If endX & endY unset, it will display how it traverses each cell in a grid
-
   for(let i = 0; i < tracking.length; i++) {
     const [x, y, cellColor] = tracking[i];
     const curCell = get_cell(x, y);
