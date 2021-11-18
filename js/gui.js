@@ -153,7 +153,8 @@ function bfs(startX, startY) {
   while(!q.empty()) {
     const [x, y] = q.front();
     const curCell = document.getElementById(get_cell_id(x, y));
-    tracking.push([x, y, `rgba(255, 165, 0, min(1, calc(${curCell.distance} * 0.0125 + 0.3)))`]);
+    const transparency = curCell.distance * 0.0125 + 0.25;
+    tracking.push([x, y, `rgba(255, 165, 0, ${transparency})`]);
     q.pop();
 
     /* randomized traversing direction */
@@ -218,7 +219,9 @@ function update_cell_visited(curCell, visitedCellBg = 'orange') {
   const span = document.createElement('span');
   span.classList.add('pulsing-cell');
 
-  curCell.style.backgroundColor = visitedCellBg;
+  console.log(visitedCellBg);
+  curCell.style.background = visitedCellBg;
+  curCell.style.backgroundClip = 'padding-box';   // for firefox
   curCell.appendChild(span);
 }
 
