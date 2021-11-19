@@ -20,6 +20,10 @@ function init() {
   // travel_shortest_path(startX, startY, endX, endY);
 }
 
+function smooth_scroll_to_title() {
+  document.getElementsByClassName('title')[0].scrollIntoView();
+}
+
 function visualize_grid() {
   const grid = get_maze_grid();
   set_grid(grid);
@@ -97,8 +101,55 @@ function escape_by_shortest_path() {
   run(asyncFunc);
 }
 
-function smooth_scroll_to_title() {
-  document.getElementsByClassName('title')[0].scrollIntoView();
+function toggle_game_mode() {
+  // initial starting point
+  reset_grid();
+  currentX = currentY = 0;
+
+  if(!game_mode) {
+    game_mode = true;
+    game_mode_on();
+  } else {
+    game_mode = false;
+    game_mode_off();
+  }
+}
+
+function game_mode_on() {
+  document.addEventListener('keydown', function(e) {
+    switch(e.keyCode) {
+      case 37:
+        move('W');
+        console.log('left');
+        break;
+      case 38:
+        move('N');
+        console.log('up');
+        break;
+      case 39:
+        move('E');
+        console.log('right');
+        break;
+      case 40:
+        move('S');
+        console.log('down');
+        break;
+    }
+  });
+}
+
+function move(dir) {
+  const [nxtX, nxtY] = [currentX + DX[dir], currentY + DY[dir]];
+
+  const curCell = get_cell(currentX, currentY);
+  const nxtCell = get_cell(nxtX, nxtY);
+  if(nxtCell) {
+    if(!is_wall_built(curCell, DIR_NUM[dir]) && !is_wall_built(nxtCell, DIR_NUM[OPPOSITE[dir]])) {
+      console.log(currentX, currentY, ' to ', nxtX, nxtY);
+      update_cell_visited(nxtCell);
+      [currentX, currentY] = [nxtX, nxtY];
+    }
+  }
 }
 
 function set_grid(grid) {
