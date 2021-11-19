@@ -26,6 +26,7 @@ function visualize_grid() {
 }
 
 async function run(func) {
+  /* running: implemented in setting.js */
   if(!running) {
     running = true;
     await func();
@@ -36,8 +37,8 @@ async function run(func) {
 function traverse_by_dfs() {
   const asyncFunc = async() => {
     reset_grid();
-    const startingCell = get_starting_cell();
-    const tracking_by_dfs = dfs(startingCell.x, startingCell.y);
+    const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
+    const tracking_by_dfs = dfs(sx, sy);
 
     await visualize_tracking(tracking_by_dfs);
   }
@@ -48,8 +49,8 @@ function traverse_by_dfs() {
 function traverse_by_bfs() {
   const asyncFunc = async() => {
     reset_grid();
-    const startingCell = get_starting_cell();
-    const tracking_by_bfs = bfs(startingCell.x, startingCell.y);
+    const [x, y] = cell_pos_string_to_number_array(get_starting_cell());
+    const tracking_by_bfs = bfs(x, y);
 
     await visualize_tracking(tracking_by_bfs);
   }
@@ -60,11 +61,11 @@ function traverse_by_bfs() {
 function escape_by_dfs() {
   const asyncFunc = async() => {
     reset_grid();
-    const startingCell = get_starting_cell();
-    const endingCell = get_ending_cell();
-    const tracking_by_dfs = dfs(startingCell.x, startingCell.y);
+    const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
+    const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
+    const tracking_by_dfs = dfs(sx, sy);
 
-    await visualize_tracking(tracking_by_dfs, endingCell.x, endingCell.y);
+    await visualize_tracking(tracking_by_dfs, ex, ey);
   }
 
   run(asyncFunc);
@@ -73,11 +74,11 @@ function escape_by_dfs() {
 function escape_by_bfs() {
   const asyncFunc = async() => {
     reset_grid();
-    const startingCell = get_starting_cell();
-    const endingCell = get_ending_cell();
-    const tracking_by_bfs = bfs(startingCell.x, startingCell.y);
+    const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
+    const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
+    const tracking_by_bfs = bfs(sx, sy);
 
-    await visualize_tracking(tracking_by_bfs, endingCell.x, endingCell.y);
+    await visualize_tracking(tracking_by_bfs, ex, ey);
   }
 
   run(asyncFunc);
@@ -86,11 +87,11 @@ function escape_by_bfs() {
 function escape_by_shortest_path() {
   const asyncFunc = async() => {
     reset_grid();
-    const startingCell = get_starting_cell();
-    const endingCell = get_ending_cell();
+    const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
+    const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
 
-    bfs(startingCell.x, startingCell.y);
-    await travel_shortest_path(startingCell.x, startingCell.y, endingCell.x, endingCell.y);
+    bfs(sx, sy);
+    await travel_shortest_path(sx, sy, ex, ey);
   }
 
   run(asyncFunc);
@@ -129,10 +130,10 @@ function set_grid(grid) {
         cell.style.borderRight = borderImpassable;
       }
 
-      cell.x = x;
-      cell.y = y;
-      cell.borderThinDotted = borderPassable;
-      cell.wallState = wallState;
+      cell.dataset.x = x;
+      cell.dataset.y = y;
+      cell.dataset.border = borderPassable;
+      cell.dataset.wallState = wallState;
       reset_cell(cell);
       set_cell_style(cell);
     }
@@ -154,11 +155,11 @@ function set_grid(grid) {
 }
 
 function reset_grid() {
-  const startingCell = get_starting_cell();
-  const endingCell = get_ending_cell();
+  const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
+  const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
 
-  for(let i = startingCell.x; i <= endingCell.x; i++) {
-    for(let j = startingCell.y; j <= endingCell.y; j++) {
+  for(let i = sx; i <= ex; i++) {
+    for(let j = sy; j <= ey; j++) {
       reset_cell(get_cell(i, j));
     }
   }
@@ -187,26 +188,26 @@ function set_row_style(row) {
 }
 
 function reset_cell(cell) {
-  cell.visited = false;
-  cell.distance = -1;
-  cell.prev = null; // will be used in bfs for tracking path
+  cell.dataset.visited = false;
+  cell.dataset.distance = -1;
+  cell.dataset.prev = ''; // will be used in bfs for tracking path
   cell.style.backgroundColor = '';
 }
 
 function set_cell_style(cell) {
-  cell.id = get_cell_id(cell.x, cell.y);
+  cell.id = get_cell_id(cell.dataset.x, cell.dataset.y);
   cell.style.padding = '0.25em 0.25em';
-  if(!cell.style.borderTop) cell.style.borderTop = cell.borderThinDotted;
-  if(!cell.style.borderBottom) cell.style.borderBottom = cell.borderThinDotted;
-  if(!cell.style.borderRight) cell.style.borderRight = cell.borderThinDotted;
-  if(!cell.style.borderLeft) cell.style.borderLeft = cell.borderThinDotted;
+  if(!cell.style.borderTop) cell.style.borderTop = cell.dataset.border;
+  if(!cell.style.borderBottom) cell.style.borderBottom = cell.dataset.border;
+  if(!cell.style.borderRight) cell.style.borderRight = cell.dataset.border;
+  if(!cell.style.borderLeft) cell.style.borderLeft = cell.dataset.border;
 }
 
 function dfs(x, y) {
   const tracking = [];
 
   const curCell = get_cell(x, y);
-  curCell.visited = true;
+  curCell.dataset.visited = true;
   tracking.push([x, y, 'rgba(255, 165, 0, 1)']);
 
   /* randomized traversing direction */
@@ -234,17 +235,16 @@ function bfs(startX, startY) {
   const q = new Queue();
   const directions = [...DIRS];
   const startingCell = get_starting_cell();
-  const endingCell = get_ending_cell();
-  const totalCells = (endingCell.x + 1) * (endingCell.y + 1);
+  const totalCells = get_total_cell();
 
-  startingCell.distance = 0;
-  startingCell.visited = true;
+  startingCell.dataset.distance = 0;
+  startingCell.dataset.visited = true;
   q.push([startX, startY]);
 
   while(!q.empty()) {
     const [x, y] = q.front();
     const curCell = get_cell(x, y);
-    const transparency = Math.min(1, 0.15 + curCell.distance / totalCells * 1.25);
+    const transparency = Math.min(1, 0.15 + Number(curCell.dataset.distance) / totalCells * 1.25);
 
     tracking.push([x, y, `rgba(255, 165, 0, ${transparency})`]);
     q.pop();
@@ -259,9 +259,9 @@ function bfs(startX, startY) {
       const nxtCell = get_cell(nx, ny);
       if(is_cell_not_visitied(nxtCell)) {
         if(!is_wall_built(curCell, DIR_NUM[direction]) && !is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
-          nxtCell.prev = curCell;
-          nxtCell.visited = true;
-          nxtCell.distance = curCell.distance + 1;
+          nxtCell.dataset.prev = curCell.id;
+          nxtCell.dataset.visited = true;
+          nxtCell.dataset.distance = Number(curCell.dataset.distance) + 1;
           q.push([nx, ny]);
         }
       }
@@ -289,8 +289,8 @@ async function travel_shortest_path(startX, startY, endX, endY) {
   let curCell = get_cell(endX, endY);
 
   while(curCell) {
-    path.push([curCell.x, curCell.y]);
-    curCell = curCell.prev;
+    path.push(cell_pos_string_to_number_array(curCell));
+    curCell = document.getElementById(curCell.dataset.prev);
   }
 
   for(let i = path.length - 1; i >= 0; i--) {
@@ -316,11 +316,11 @@ function update_cell_visited(curCell, visitedCellBg = 'orange') {
 }
 
 function is_cell_not_visitied(visitingCell) {
-  return visitingCell && !visitingCell.visited;
+  return visitingCell && visitingCell.dataset.visited === 'false';
 }
 
 function is_wall_built(visitingCell, direction) {
-  return visitingCell.wallState & direction;
+  return Number(visitingCell.dataset.wallState) & direction;
 }
 
 function get_cell_id(x, y) {
@@ -337,4 +337,14 @@ function get_starting_cell() {
 
 function get_ending_cell() {
   return document.querySelector('[data-ending=true]');
+}
+
+function get_total_cell() {
+  const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
+  return (ex + 1) * (ey + 1);
+}
+
+function cell_pos_string_to_number_array(cell) {
+  /* data-* attribute only contains string type, and this is used for grid's cell position(x, y) */
+  return [Number(cell.dataset.x), Number(cell.dataset.y)];
 }
