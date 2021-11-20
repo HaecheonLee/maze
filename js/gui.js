@@ -107,35 +107,53 @@ function toggle_game_mode() {
   currentX = currentY = 0;
 
   if(!game_mode) {
-    game_mode = true;
     game_mode_on();
   } else {
-    game_mode = false;
     game_mode_off();
   }
 }
 
 function game_mode_on() {
-  document.addEventListener('keydown', function(e) {
-    switch(e.keyCode) {
-      case 37:
-        move('W');
-        console.log('left');
-        break;
-      case 38:
-        move('N');
-        console.log('up');
-        break;
-      case 39:
-        move('E');
-        console.log('right');
-        break;
-      case 40:
-        move('S');
-        console.log('down');
-        break;
-    }
-  });
+  if(!game_mode) {
+    console.log('-------------------- GAME MODE ON --------------------');
+
+    const curCell = get_cell(currentX, currentY);
+    update_cell_visited(curCell);
+
+    document.onkeydown = game_mode_func;
+    //document.addEventListener('keydown', game_mode_func);
+  }
+  game_mode = true;
+}
+
+function game_mode_off() {
+  console.log('-------------------- GAME MODE OFF --------------------');
+  if(game_mode) {
+    document.onkeydown = null;
+    // document.removeEventListener('keydown', game_mode_func);
+  }
+  game_mode = false;
+}
+
+function game_mode_func(e) {
+  switch(e.keyCode) {
+    case 37:
+      move('W');
+      // console.log('left');
+      break;
+    case 38:
+      move('N');
+      // console.log('up');
+      break;
+    case 39:
+      move('E');
+      // console.log('right');
+      break;
+    case 40:
+      move('S');
+      // console.log('down');
+      break;
+  }
 }
 
 function move(dir) {
