@@ -404,7 +404,7 @@ function update_cell_visited(curCell, visitedCellBg = 'orange', needPulsing = tr
     curCell.style.backgroundClip = 'padding-box';   // for firefox
   }
 
-  curCell.style.background = visitedCellBg;
+  curCell.style.backgroundColor = visitedCellBg;
 }
 
 function add_pulsing_span(curCell) {
