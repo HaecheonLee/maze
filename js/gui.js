@@ -32,6 +32,8 @@ function visualize_grid() {
 async function run(func) {
   /* running: implemented in setting.js */
   if(!running) {
+    game_mode_off();
+
     running = true;
     await func();
     running = false;
@@ -380,23 +382,20 @@ function update_cell_visited(curCell, visitedCellBg = 'orange', needPulsing = tr
   const spanInCell = curCell.querySelector('span');
 
   if(spanInCell) {
-    // already pulsing span exists
-
+    // a pulsing span already exists
     if(needPulsing) {
       spanInCell.classList.remove('pulsing-cell')
-      add_pulsing_effect(curCell);
+      add_pulsing_span(curCell);
     }
-
-    curCell.style.background = visitedCellBg;
   } else {
-    add_pulsing_effect(curCell);
-
-    curCell.style.background = visitedCellBg;
+    add_pulsing_span(curCell);
     curCell.style.backgroundClip = 'padding-box';   // for firefox
   }
+
+  curCell.style.background = visitedCellBg;
 }
 
-function add_pulsing_effect(curCell) {
+function add_pulsing_span(curCell) {
   const span = document.createElement('span');
   span.classList.add('pulsing-cell');
   curCell.appendChild(span);
