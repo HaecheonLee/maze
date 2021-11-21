@@ -140,18 +140,22 @@ function game_mode_off() {
 function game_mode_func(e) {
   switch(e.keyCode) {
     case 37:
+      e.preventDefault(); // disable scrolling
       move('W');
       // console.log('left');
       break;
     case 38:
+      e.preventDefault(); // disable scrolling
       move('N');
       // console.log('up');
       break;
     case 39:
+      e.preventDefault(); // disable scrolling
       move('E');
       // console.log('right');
       break;
     case 40:
+      e.preventDefault(); // disable scrolling
       move('S');
       // console.log('down');
       break;
