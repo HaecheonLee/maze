@@ -118,7 +118,7 @@ function game_mode_on() {
     console.log('-------------------- GAME MODE ON --------------------');
 
     const curCell = get_cell(currentX, currentY);
-    update_cell_visited(curCell);
+    update_cell_visited(curCell, currentCellBg);
 
     document.onkeydown = game_mode_func;
     //document.addEventListener('keydown', game_mode_func);
@@ -163,8 +163,9 @@ function move(dir) {
   const nxtCell = get_cell(nxtX, nxtY);
   if(nxtCell) {
     if(!is_wall_built(curCell, DIR_NUM[dir]) && !is_wall_built(nxtCell, DIR_NUM[OPPOSITE[dir]])) {
-      console.log(currentX, currentY, ' to ', nxtX, nxtY);
-      update_cell_visited(nxtCell);
+      update_cell_visited(curCell, 'orange', false);
+      update_cell_visited(nxtCell, currentCellBg);
+
       [currentX, currentY] = [nxtX, nxtY];
     }
   }
@@ -375,12 +376,29 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function update_cell_visited(curCell, visitedCellBg = 'orange') {
+function update_cell_visited(curCell, visitedCellBg = 'orange', needPulsing = true) {
+  const spanInCell = curCell.querySelector('span');
+
+  if(spanInCell) {
+    // already pulsing span exists
+
+    if(needPulsing) {
+      spanInCell.remove();
+      add_pulsing_effect(curCell);
+    }
+
+    curCell.style.background = visitedCellBg;
+  } else {
+    add_pulsing_effect(curCell);
+
+    curCell.style.background = visitedCellBg;
+    curCell.style.backgroundClip = 'padding-box';   // for firefox
+  }
+}
+
+function add_pulsing_effect(curCell) {
   const span = document.createElement('span');
   span.classList.add('pulsing-cell');
-
-  curCell.style.background = visitedCellBg;
-  curCell.style.backgroundClip = 'padding-box';   // for firefox
   curCell.appendChild(span);
 }
 
