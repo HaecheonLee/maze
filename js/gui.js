@@ -32,8 +32,6 @@ function visualize_grid() {
 async function run(func) {
   /* running: implemented in setting.js */
   if(!running) {
-    game_mode_off();
-
     running = true;
     await func();
     running = false;
@@ -42,6 +40,7 @@ async function run(func) {
 
 function traverse_by_dfs() {
   const asyncFunc = async() => {
+    game_mode_off();
     reset_grid();
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const tracking_by_dfs = dfs(sx, sy);
@@ -54,6 +53,7 @@ function traverse_by_dfs() {
 
 function traverse_by_bfs() {
   const asyncFunc = async() => {
+    game_mode_off();
     reset_grid();
     const [x, y] = cell_pos_string_to_number_array(get_starting_cell());
     const tracking_by_bfs = bfs(x, y);
@@ -66,6 +66,7 @@ function traverse_by_bfs() {
 
 function escape_by_dfs() {
   const asyncFunc = async() => {
+    game_mode_off();
     reset_grid();
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
@@ -79,6 +80,7 @@ function escape_by_dfs() {
 
 function escape_by_bfs() {
   const asyncFunc = async() => {
+    game_mode_off();
     reset_grid();
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
@@ -92,6 +94,7 @@ function escape_by_bfs() {
 
 function escape_by_shortest_path() {
   const asyncFunc = async() => {
+    game_mode_off();
     reset_grid();
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
@@ -105,14 +108,19 @@ function escape_by_shortest_path() {
 
 function toggle_game_mode() {
   // initial starting point
-  reset_grid();
-  currentX = currentY = 0;
 
-  if(!game_mode) {
-    game_mode_on();
-  } else {
-    game_mode_off();
+  const asyncFunc = async() => {
+    reset_grid();
+    currentX = currentY = 0;
+
+    if(!game_mode) {
+      game_mode_on();
+    } else {
+      game_mode_off();
+    }
   }
+
+  run(asyncFunc);
 }
 
 function game_mode_on() {
