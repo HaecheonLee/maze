@@ -383,7 +383,7 @@ function update_cell_visited(curCell, visitedCellBg = 'orange', needPulsing = tr
     // already pulsing span exists
 
     if(needPulsing) {
-      spanInCell.remove();
+      spanInCell.classList.remove('pulsing-cell')
       add_pulsing_effect(curCell);
     }
 
