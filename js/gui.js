@@ -235,6 +235,11 @@ function set_grid(grid) {
   table.rows[N - 1].cells[M - 1].setAttribute('data-ending', true);
 
   const app = document.getElementById('app');
+
+  // remove a table if it already exists
+  const builtTable = app.querySelector('table');
+  if(builtTable) builtTable.remove();
+  
   app.appendChild(table);
 }
 
