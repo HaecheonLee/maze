@@ -32,7 +32,7 @@ table, tr, td {
 }
 
 .command-container {
-  margin-bottom: 1.85em;
+  /* margin-bottom: 1.85em; */
 }
 
 .pulsing-cell {
@@ -66,4 +66,13 @@ table, tr, td {
 		transform: scale(0.95);
 		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 	}
+}
+
+.game-mode-status-container {
+  text-align: center;
+  margin: 0.95em 0;
+}
+
+#game_mode_on_indicator {
+  visibility: hidden;
 }

@@ -133,6 +133,8 @@ function game_mode_on() {
     document.onkeydown = game_mode_func;
     //document.addEventListener('keydown', game_mode_func);
   }
+
+  update_game_mode_indicator(true);
   game_mode = true;
 }
 
@@ -142,6 +144,8 @@ function game_mode_off() {
     document.onkeydown = null;
     // document.removeEventListener('keydown', game_mode_func);
   }
+
+  update_game_mode_indicator(false);
   game_mode = false;
 }
 
@@ -450,4 +454,9 @@ function get_total_cell() {
 function cell_pos_string_to_number_array(cell) {
   /* data-* attribute only contains string type, and this is used for grid's cell position(x, y) */
   return [Number(cell.dataset.x), Number(cell.dataset.y)];
+}
+
+function update_game_mode_indicator(isOn) {
+  const indicator = document.getElementById('game_mode_on_indicator');
+  indicator.style.visibility = isOn ? 'visible' : 'hidden';
 }
