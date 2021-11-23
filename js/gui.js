@@ -106,8 +106,9 @@ function escape_by_shortest_path() {
   run(asyncFunc);
 }
 
-function toggle_game_mode() {
-  // initial starting point
+function toggle_game_mode(btnGameMode) {
+  // remove focusing after clicking 
+  btnGameMode.blur();
 
   const asyncFunc = async() => {
     reset_grid();
