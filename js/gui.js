@@ -1,4 +1,4 @@
-// support modern browsers and old browsers such as IE9
+update_all_buttons_disabled()// support modern browsers and old browsers such as IE9
 function ready(fn) {
   if(document.readyState !== 'loading') {
     fn();
@@ -14,10 +14,6 @@ ready(function() {
 
 function init() {
   visualize_grid();
-
-  // visualize_tracking(dfs(startX, startY), endX, endY);
-  // visualize_tracking(bfs(startX, startY));
-  // travel_shortest_path(startX, startY, endX, endY);
 }
 
 function smooth_scroll_to_title() {
@@ -29,85 +25,98 @@ function visualize_grid() {
   set_grid(grid);
 }
 
-async function run(func) {
+async function run_async(func) {
   /* running: implemented in setting.js */
-  if(!running) {
-    running = true;
+  if(!isRunning) {
+    isRunning = true;
     await func();
-    running = false;
+    isRunning = false;
   }
 }
 
 function traverse_by_dfs() {
   const asyncFunc = async() => {
+    update_all_buttons_disabled(true);
     game_mode_off();
     reset_grid();
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const tracking_by_dfs = dfs(sx, sy);
 
-    await visualize_tracking(tracking_by_dfs);
+    await visualize_tracking_async(tracking_by_dfs);
+    update_all_buttons_disabled(false);
   }
 
-  run(asyncFunc);
+  run_async(asyncFunc);
 }
 
 function traverse_by_bfs() {
   const asyncFunc = async() => {
+    update_all_buttons_disabled(true);
     game_mode_off();
     reset_grid();
     const [x, y] = cell_pos_string_to_number_array(get_starting_cell());
     const tracking_by_bfs = bfs(x, y);
 
-    await visualize_tracking(tracking_by_bfs);
+    await visualize_tracking_async(tracking_by_bfs);
+    update_all_buttons_disabled(false);
   }
 
-  run(asyncFunc);
+  run_async(asyncFunc);
 }
 
 function escape_by_dfs() {
   const asyncFunc = async() => {
+    update_all_buttons_disabled(true);
     game_mode_off();
     reset_grid();
+
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
     const tracking_by_dfs = dfs(sx, sy);
 
-    await visualize_tracking(tracking_by_dfs, ex, ey);
+    await visualize_tracking_async(tracking_by_dfs, ex, ey);
+    update_all_buttons_disabled(false);
   }
 
-  run(asyncFunc);
+  run_async(asyncFunc);
 }
 
 function escape_by_bfs() {
   const asyncFunc = async() => {
+    update_all_buttons_disabled(true);
     game_mode_off();
     reset_grid();
+
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
     const tracking_by_bfs = bfs(sx, sy);
 
-    await visualize_tracking(tracking_by_bfs, ex, ey);
+    await visualize_tracking_async(tracking_by_bfs, ex, ey);
+    update_all_buttons_disabled(false);
   }
 
-  run(asyncFunc);
+  run_async(asyncFunc);
 }
 
 function escape_by_shortest_path() {
   const asyncFunc = async() => {
+    update_all_buttons_disabled(true);
     game_mode_off();
     reset_grid();
+
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
 
     bfs(sx, sy);
-    await travel_shortest_path(sx, sy, ex, ey);
+    await travel_shortest_path_async(sx, sy, ex, ey);
+    update_all_buttons_disabled(false);
   }
 
-  run(asyncFunc);
+  run_async(asyncFunc);
 }
 
 function toggle_game_mode(btnGameMode) {
-  // remove focusing after clicking 
+  // remove focusing after clicking
   btnGameMode.blur();
 
   const asyncFunc = async() => {
@@ -121,7 +130,7 @@ function toggle_game_mode(btnGameMode) {
     }
   }
 
-  run(asyncFunc);
+  run_async(asyncFunc);
 }
 
 function game_mode_on() {
@@ -365,7 +374,7 @@ function bfs(startX, startY) {
   return tracking;
 }
 
-async function visualize_tracking(tracking, endX = -1, endY = -1) {
+async function visualize_tracking_async(tracking, endX = -1, endY = -1) {
   // If endX & endY unset, it will display how it traverses each cell in a grid
   for(let i = 0; i < tracking.length; i++) {
     const [x, y, cellColor] = tracking[i];
@@ -373,11 +382,11 @@ async function visualize_tracking(tracking, endX = -1, endY = -1) {
     update_cell_visited(curCell, cellColor);
 
     if(x === endX && y == endY) break;
-    await sleep(travelSpeed);
+    await sleep(sleepingTime);
   }
 }
 
-async function travel_shortest_path(startX, startY, endX, endY) {
+async function travel_shortest_path_async(startX, startY, endX, endY) {
   // shortest path: from [endX, endY] to [startX, startY]
   const path = [];
   let curCell = get_cell(endX, endY);
@@ -388,7 +397,7 @@ async function travel_shortest_path(startX, startY, endX, endY) {
   }
 
   for(let i = path.length - 1; i >= 0; i--) {
-    await sleep(travelSpeed * 0.25);
+    await sleep(sleepingTime * 0.25);
 
     const [x, y] = path[i];
     const curCell = get_cell(x, y);
@@ -460,4 +469,16 @@ function cell_pos_string_to_number_array(cell) {
 function update_game_mode_indicator(isOn) {
   const indicator = document.getElementById('game_mode_on_indicator');
   indicator.style.visibility = isOn ? 'visible' : 'hidden';
+}
+
+function reset_setting() {
+
+}
+
+function update_all_buttons_disabled(isDisabled) {
+  const buttons = document.querySelectorAll('button');
+
+  for(let i = 0; i < buttons.length; i++) {
+    buttons[i].disabled = isDisabled;
+  }
 }
