@@ -471,10 +471,6 @@ function update_game_mode_indicator(isOn) {
   indicator.style.visibility = isOn ? 'visible' : 'hidden';
 }
 
-function reset_setting() {
-
-}
-
 function update_all_buttons_disabled(isDisabled) {
   const buttons = document.querySelectorAll('button');
 
