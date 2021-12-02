@@ -57,5 +57,5 @@ class Queue {
   }
 }
 
-/* this line is only for when testing */
+/* this line is only needed when testing */
 // module.exports = Queue;
