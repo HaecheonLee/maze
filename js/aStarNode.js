@@ -38,6 +38,9 @@ class AStarNode {
 
   set G(val) {
     this.#_G = val;
+
+    // update F score when G changes
+    this.F = this.H + this.G;
   }
 
   get H() {
@@ -46,6 +49,9 @@ class AStarNode {
 
   set H(val) {
     this.#_H = val;
+
+    // update F score when H changes
+    this.F = this.H + this.G;
   }
 
   get parentNode() {

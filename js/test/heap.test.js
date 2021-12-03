@@ -46,11 +46,12 @@ describe("Heap Testing...", () => {
     }
   });
 
-  it("aStarNode Testing", () => {
+  it("AStarNode in Heap Testing", () => {
     const heap = new Heap();
 
     const arr = [];
     const LEN = 10;
+
     for(let i = 0; i < LEN; i++) {
       for(let j = 0; j < LEN; j++) {
         // starting to current node:  taxicab distdance
@@ -65,13 +66,14 @@ describe("Heap Testing...", () => {
       }
     }
 
+    // sort the array increasing
     arr.sort((a, b) => a - b);
 
     let pos = 0;
     while(!heap.empty()) {
-      const minNode = heap.top();
-      heap.pop();
+      const minNode = heap.pop();
       expect(minNode.F).toBe(arr[pos++]);
     }
+
   });
 });
