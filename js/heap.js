@@ -115,4 +115,4 @@ class Heap {
 }
 
 /* this line is only needed when testing */
-module.exports = Heap;
+// module.exports = Heap;

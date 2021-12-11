@@ -1,27 +1,47 @@
 class AStarNode {
+  #_x;
+  #_y;
   #_F;
   #_G;
   #_H;
   #_parentNode;
 
-  constructor(G = 0, H = 0, parentNode = null) {
+  constructor(x = -1, y = -1, g = 0, h = 0, parentNode = null) {
     // F = G + H
     // G is the minimum cost from a starting point to the current node
     // H is the heuristic cost from the current node to an ending point
 
-    this.F = G + H;
-    this.G = G;
-    this.H = H;
+    this.x = x;
+    this.y = y;
+    this.F = g + h;
+    this.G = g;
+    this.H = h;
     this.parentNode = parentNode;
   }
 
   compare(node) {
     // return true if the current node has small 'F' than the comparing node
-    if(node instanceof AStarNode) {
+    if(node instanceof this.constructor) {
       return this.F < node.F;
     } else {
       throw new Error(`AStartNode.compare(node): ${node} is not instasnce of AStartNode`);
     }
+  }
+
+  get x() {
+    return this.#_x;
+  }
+
+  set x(val) {
+    this.#_x = val;
+  }
+
+  get y() {
+    return this.#_y;
+  }
+
+  set y(val) {
+    this.#_y = val;
   }
 
   get F() {
@@ -64,4 +84,4 @@ class AStarNode {
 }
 
 /* this line is only needed when testing */
-module.exports = AStarNode;
+// module.exports = AStarNode;

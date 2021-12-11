@@ -1,4 +1,4 @@
-update_all_buttons_disabled()// support modern browsers and old browsers such as IE9
+// support modern browsers and old browsers such as IE9
 function ready(fn) {
   if(document.readyState !== 'loading') {
     fn();
@@ -39,10 +39,11 @@ function traverse_by_dfs() {
     update_all_buttons_disabled(true);
     game_mode_off();
     reset_grid();
-    const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
-    const tracking_by_dfs = dfs(sx, sy);
 
-    await visualize_tracking_async(tracking_by_dfs);
+    const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
+    const tracking = dfs(sx, sy);
+
+    await visualize_tracking_async(tracking);
     update_all_buttons_disabled(false);
   }
 
@@ -54,10 +55,10 @@ function traverse_by_bfs() {
     update_all_buttons_disabled(true);
     game_mode_off();
     reset_grid();
-    const [x, y] = cell_pos_string_to_number_array(get_starting_cell());
-    const tracking_by_bfs = bfs(x, y);
 
-    await visualize_tracking_async(tracking_by_bfs);
+    const tracking = bfs();
+
+    await visualize_tracking_async(tracking);
     update_all_buttons_disabled(false);
   }
 
@@ -72,9 +73,9 @@ function escape_by_dfs() {
 
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
-    const tracking_by_dfs = dfs(sx, sy);
+    const tracking = dfs(sx, sy);
 
-    await visualize_tracking_async(tracking_by_dfs, ex, ey);
+    await visualize_tracking_async(tracking, ex, ey);
     update_all_buttons_disabled(false);
   }
 
@@ -87,11 +88,10 @@ function escape_by_bfs() {
     game_mode_off();
     reset_grid();
 
-    const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
+    const tracking = bfs();
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
-    const tracking_by_bfs = bfs(sx, sy);
 
-    await visualize_tracking_async(tracking_by_bfs, ex, ey);
+    await visualize_tracking_async(tracking, ex, ey);
     update_all_buttons_disabled(false);
   }
 
@@ -104,16 +104,34 @@ function escape_by_shortest_path() {
     game_mode_off();
     reset_grid();
 
+    bfs();
+
     const [sx, sy] = cell_pos_string_to_number_array(get_starting_cell());
     const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
 
-    bfs(sx, sy);
     await travel_shortest_path_async(sx, sy, ex, ey);
     update_all_buttons_disabled(false);
   }
 
   run_async(asyncFunc);
 }
+
+function escape_by_a_star_search() {
+  const asyncFunc = async() => {
+    update_all_buttons_disabled(true);
+    game_mode_off();
+    reset_grid();
+
+    const tracking = a_star_search();
+    const [ex, ey] = cell_pos_string_to_number_array(get_ending_cell());
+
+    await visualize_tracking_async(tracking, ex, ey);
+    update_all_buttons_disabled(false);
+  }
+
+  run_async(asyncFunc);
+}
+
 
 function toggle_game_mode(btnGameMode) {
   // remove focusing after clicking
@@ -317,23 +335,22 @@ function dfs(x, y) {
   const directions = [...DIRS];
   shuffle(directions);  // implemented in /js/maze.js
 
-  for(const idx in directions) {
-    const direction = directions[idx];
+  for(const direction of directions) {
     const [nx, ny] = [x + DX[direction], y + DY[direction]];
-
     const nxtCell = get_cell(nx, ny);
+
     if(is_cell_not_visitied(nxtCell)) {
       if(!is_wall_built(curCell, DIR_NUM[direction]) && !is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
         tracking.push(...dfs(nx, ny));
       }
     }
   }
-
   tracking.push([x, y, 'rgba(255, 165, 0, .5)']);
+
   return tracking;
 }
 
-function bfs(startX, startY) {
+function bfs() {
   const tracking = [];
   const q = new Queue();
   const directions = [...DIRS];
@@ -342,6 +359,8 @@ function bfs(startX, startY) {
 
   startingCell.dataset.distance = 0;
   startingCell.dataset.visited = true;
+
+  const [startX, startY] = cell_pos_string_to_number_array(startingCell);
   q.push([startX, startY]);
 
   while(!q.empty()) {
@@ -349,27 +368,73 @@ function bfs(startX, startY) {
     const curCell = get_cell(x, y);
     const transparency = Math.min(1, 0.28 + Number(curCell.dataset.distance) / halfCells * 1.25);
 
-    tracking.push([x, y, `rgba(255, 165, 0, ${transparency})`]);
     q.pop();
+    tracking.push([x, y, `rgba(255, 165, 0, ${transparency})`]);
 
     /* randomized traversing direction */
     shuffle(directions); // implemented in /js/maze.js
 
-    for(const idx in directions) {
-      const direction = directions[idx];
+    for(const direction of directions) {
       const [nx, ny] = [x + DX[direction], y + DY[direction]];
-
       const nxtCell = get_cell(nx, ny);
+
       if(is_cell_not_visitied(nxtCell)) {
         if(!is_wall_built(curCell, DIR_NUM[direction]) && !is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
           nxtCell.dataset.prev = curCell.id;
           nxtCell.dataset.visited = true;
           nxtCell.dataset.distance = Number(curCell.dataset.distance) + 1;
+
           q.push([nx, ny]);
         }
       }
     }
   }
+
+  return tracking;
+}
+
+function a_star_search() {
+  const heap = new Heap();
+  const directions = [...DIRS];
+  const tracking = [];
+  const startingCell = get_starting_cell();
+  const endingCell = get_ending_cell();
+  const [startX, startY] = cell_pos_string_to_number_array(startingCell);
+  const [endX, endY] = cell_pos_string_to_number_array(endingCell);
+
+  startingCell.dataset.distance = 0;
+  startingCell.dataset.visited = true;
+
+  heap.push(new AStarNode(startX, startY, 0, 0));
+
+  while(!heap.empty()) {
+    const curNode = heap.top();
+    const curCell = get_cell(curNode.x, curNode.y)
+    heap.pop();
+
+    tracking.push([curNode.x, curNode.y, 'rgba(255, 165, 0, .5)']);
+    shuffle(directions);
+
+    for(const direction of directions) {
+      const [nx, ny] = [curNode.x + DX[direction], curNode.y + DY[direction]];
+      const nxtCell = get_cell(nx, ny);
+
+      if(is_cell_not_visitied(nxtCell)) {
+        if(!is_wall_built(curCell, DIR_NUM[direction]) && !is_wall_built(nxtCell, DIR_NUM[OPPOSITE[direction]])) {
+          const distanceFromBase = Number(curCell.dataset.distance) + 1;
+          const distanceToDest = Math.sqrt((endX - nx)**2 + (endY - ny)**2);
+
+          nxtCell.dataset.prev = curCell.id;
+          nxtCell.dataset.visited = true;
+          nxtCell.dataset.distance = distanceFromBase;
+
+          heap.push(new AStarNode(nx, ny, distanceFromBase, distanceToDest, curNode));
+        }
+      }
+    }
+  }
+
+  console.log(tracking);
 
   return tracking;
 }

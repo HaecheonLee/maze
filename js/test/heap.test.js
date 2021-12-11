@@ -1,4 +1,4 @@
-const AStarNode = require('../aStarNode');
+const AStarNode = require('../a_star_node');
 const Heap = require('../heap');
 
 
@@ -38,6 +38,7 @@ describe("Heap Testing...", () => {
       arr.push(randNum);
     }
 
+    // sort the array in ascending order
     arr.sort((a, b) => a - b);
 
     for(let i = 0; i < LEN; i++) {
@@ -60,13 +61,13 @@ describe("Heap Testing...", () => {
         const G = i + j;
         const H = Math.floor(Math.sqrt((LEN - 1 - i)**2 + (LEN - 1 - j)**2));
 
-        const node = new AStarNode(G, H, null);
+        const node = new AStarNode(i, j, G, H, null);
         heap.push(node);
         arr.push(G + H);
       }
     }
 
-    // sort the array increasing
+    // sort the array in ascending order
     arr.sort((a, b) => a - b);
 
     let pos = 0;
