@@ -603,14 +603,18 @@ function add_event_for_log_span(x, y) {
   const spans = document.querySelectorAll(`.log_${x}_${y}`);
 
   spans.forEach(span => {
-      span.addEventListener("mouseover", function(event) {
-        const cell = get_cell(x, y);
-        cell.classList.add('selected-cell');
-      });
+    span.onmouseover = () => {
+      const cell = get_cell(x, y);
+      cell.classList.add('selected-cell');
+    }
 
-      span.addEventListener("mouseout", function(event) {
-        const cell = get_cell(x, y);
-        cell.classList.remove('selected-cell');
-      });
+    span.onmouseout = () => {
+      const cell = get_cell(x, y);
+      cell.classList.remove('selected-cell');
+    }
   });
+}
+
+function has_event(span, eventName) {
+  return getEventListeners(span)[eventName]
 }
