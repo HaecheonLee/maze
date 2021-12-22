@@ -22,7 +22,7 @@ function smooth_scroll_to_title() {
 
 function visualize_grid() {
   game_mode_off();
-  
+
   const grid = get_maze_grid();
   set_grid(grid);
 }
@@ -460,7 +460,7 @@ async function visualize_tracking_async(tracking, endX = -1, endY = -1) {
   }
 
   const endingTime = new Date();
-  write_log(`total cells: ${endX * endY}, visited cells: ${numOfVisitedCell}`);
+  write_log(`total cells: ${(endX + 1) * (endY + 1)}, visited cells: ${numOfVisitedCell}`);
 }
 
 async function travel_shortest_path_async(startX, startY, endX, endY) {
