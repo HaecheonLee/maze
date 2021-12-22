@@ -21,6 +21,8 @@ function smooth_scroll_to_title() {
 }
 
 function visualize_grid() {
+  game_mode_off();
+  
   const grid = get_maze_grid();
   set_grid(grid);
 }

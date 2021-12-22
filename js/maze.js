@@ -1,7 +1,15 @@
 function get_maze_grid() {
   // the size of grid (N, M): defined in maze_defs.js
-  const N = Math.floor(Math.random() * MAX_N) + MIN_N;
-  const M = Math.floor(Math.random() * MAX_N) + MIN_N;
+  // const N = Math.floor(Math.random() * MAX_N) + MIN_N;
+  // const M = Math.floor(Math.random() * MAX_N) + MIN_N;
+
+  const N = Number(document.getElementById('noRows').value);
+  const M = Number(document.getElementById('noCols').value);
+
+  if(!is_valid_input(N, M)) {
+    return false;
+  }
+
   const grid = [...Array(N)].map((x) => Array(M).fill(0));
 
   // random starting point (y, x): [0, N - 1]
@@ -89,4 +97,28 @@ function shuffle(array) {
 
 function is_out_of_bound(x, y, N, M) {
   return 0 <= x && x < N && 0 <= y && y < M;
+}
+
+function is_valid_input(N, M) {
+  if(!N) {
+    alert(`Please enter a number value for row`);
+    return false;
+  }
+
+  if(!M) {
+    alert(`Please enter a number value for column`);
+    return false;
+  }
+
+  if(N > MAX_N || N < 0) {
+    alert('Rows must be between 0 and 50');
+    return false;
+  }
+
+  if(M > MAX_N || M < 0) {
+    alert('Cols must be beteen 0 and 50');
+    return false;
+  }
+
+  return true;
 }

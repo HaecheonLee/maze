@@ -21,6 +21,9 @@ html, body {
   font-family: sans-serif;
 }
 
+.option-container {
+  margin-bottom: 0.75em;
+}
 
 table, tr, td {
   position: relative;
@@ -93,20 +96,10 @@ table, tr, td {
   cursor:not-allowed;
 }
 
-.noSelect {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.noSelect:focus {
-  outline: none !important;
-}
-
 .log-cell {
   font-weight: bold;
+}
+
+.fixed-width-1 {
+  width: 5.81em;
 }

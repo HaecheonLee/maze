@@ -7,12 +7,19 @@
       <p class="title">
         Maze
       </p>
-      <div class="command-container">
-        <button type="button" onclick="escape_by_dfs()">DFS</button>
-        <button type="button" onclick="escape_by_bfs()">BFS</button>
-        <button type="button" onclick="escape_by_a_star_search()">A* Search</button>
-        <button type="button" onclick="escape_by_shortest_path()">Shortest Path</button>
-        <button type="button" onclick="toggle_game_mode(this)">Game mode</button>
+      <div class="maze-button-container">
+        <div class="option-container">
+          <input id="noRows" type="text" value="10" placeholder="Please enter number of rows" />
+          <input id="noCols" type="text" value="10" placeholder="Please enter number of cols" />
+          <button type="button" onclick="visualize_grid()">Generate</button>
+        </div>
+        <div class="command-container">
+          <button type="button" class="fixed-width-1" onclick="escape_by_dfs()">DFS</button>
+          <button type="button" class="fixed-width-1" onclick="escape_by_bfs()">BFS</button>
+          <button type="button" onclick="escape_by_a_star_search()">A* Search</button>
+          <button type="button" onclick="escape_by_shortest_path()">Shortest Path</button>
+          <button type="button" onclick="toggle_game_mode(this)">Game mode</button>
+        </div>
       </div>
       <div class="game-mode-status-container">
         <svg id="game_mode_on_indicator" height="8" width="8">
@@ -23,7 +30,7 @@
 
       </div>
       <div id="log_container">
-        <div id="log" class="noSelect" disabled>
+        <div id="log">
         </div>
       </div>
     </div>
