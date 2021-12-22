@@ -111,12 +111,12 @@ function is_valid_input(N, M) {
   }
 
   if(N > MAX_N || N < 0) {
-    alert('Rows must be between 0 and 50');
+    alert(`Rows must be between 0 and ${MAX_N}`);
     return false;
   }
 
   if(M > MAX_N || M < 0) {
-    alert('Cols must be beteen 0 and 50');
+    alert(`Cols must be beteen 0 and ${MAX_N}`);
     return false;
   }
 

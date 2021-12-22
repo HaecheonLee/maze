@@ -96,10 +96,14 @@ table, tr, td {
   cursor:not-allowed;
 }
 
-.log-cell {
-  font-weight: bold;
-}
-
 .fixed-width-1 {
   width: 5.81em;
+}
+
+.log-line:hover {
+  background-color: #ddd;
+}
+
+.selected-cell {
+  background: #2565AE !important;
 }

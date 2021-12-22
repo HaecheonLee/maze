@@ -22,6 +22,7 @@ function smooth_scroll_to_title() {
 
 function visualize_grid() {
   game_mode_off();
+  reset_log();
 
   const grid = get_maze_grid();
   set_grid(grid);
@@ -138,6 +139,7 @@ function escape_by_a_star_search() {
 function toggle_game_mode(btnGameMode) {
   // remove focusing after clicking
   btnGameMode.blur();
+  reset_log();
 
   const asyncFunc = async() => {
     reset_grid();
@@ -405,6 +407,7 @@ function a_star_search() {
   const endingCell = get_ending_cell();
   const [startX, startY] = cell_pos_string_to_number_array(startingCell);
   const [endX, endY] = cell_pos_string_to_number_array(endingCell);
+  const halfCells = get_total_cell() / 2;
 
   startingCell.dataset.distance = 0;
   startingCell.dataset.visited = true;
@@ -413,10 +416,11 @@ function a_star_search() {
 
   while(!heap.empty()) {
     const curNode = heap.top();
-    const curCell = get_cell(curNode.x, curNode.y)
+    const curCell = get_cell(curNode.x, curNode.y);
+    const transparency = Math.min(1, 0.28 + Number(curCell.dataset.distance) / halfCells * 1.25);
     heap.pop();
 
-    tracking.push([curNode.x, curNode.y, 'rgba(255, 165, 0, .5)']);
+    tracking.push([curNode.x, curNode.y, `rgba(255, 165, 0, ${transparency})`]);
     shuffle(directions);
 
     for(const direction of directions) {
@@ -452,7 +456,8 @@ async function visualize_tracking_async(tracking, endX = -1, endY = -1) {
     const curCell = get_cell(x, y);
     update_cell_visited(curCell, cellColor);
 
-    write_log(`<span class='log-cell' id='log_${x}_${y}'>${digit_fixed(x, 2)},${digit_fixed(y, 2)}</span> reached (${new Date() - startingTime} ms)`);
+    write_log(`<span class='log_${x}_${y}'><strong>${digit_fixed(x, 2)},${digit_fixed(y, 2)}</strong> reached (${new Date() - startingTime} ms)</span>`);
+    add_event_for_log_span(x, y);
     numOfVisitedCell++;
 
     if(x === endX && y == endY) break;
@@ -483,7 +488,8 @@ async function travel_shortest_path_async(startX, startY, endX, endY) {
     const curCell = get_cell(x, y);
     update_cell_visited(curCell);
 
-    write_log(`<span class='log-cell' id='log_${x}_${y}'>${digit_fixed(x, 2)},${digit_fixed(y, 2)}</span> reached (${new Date() - startingTime} ms)`);
+    write_log(`<span id='log_${x}_${y}'><strong>${digit_fixed(x, 2)},${digit_fixed(y, 2)}</strong> reached (${new Date() - startingTime} ms)</span>`);
+    add_event_for_log_span(x, y);
   }
 
   const endingTime = new Date();
@@ -566,14 +572,14 @@ function update_all_buttons_disabled(isDisabled) {
 
 function reset_log() {
   const log = document.getElementById('log');
-
-  log.innerText = "";
+  log.innerHTML = "";
 }
 
 function write_log(msg) {
   const log = document.getElementById('log');
 
   const div = document.createElement('div');
+  div.classList.add('log-line');
   div.innerHTML = msg;
   log.append(div);
 
@@ -594,6 +600,17 @@ function digit_fixed(number, length) {
 }
 
 function add_event_for_log_span(x, y) {
-  const span = document.getElementById(`log_${x}_${y}`);
+  const spans = document.querySelectorAll(`.log_${x}_${y}`);
 
+  spans.forEach(span => {
+      span.addEventListener("mouseover", function(event) {
+        const cell = get_cell(x, y);
+        cell.classList.add('selected-cell');
+      });
+
+      span.addEventListener("mouseout", function(event) {
+        const cell = get_cell(x, y);
+        cell.classList.remove('selected-cell');
+      });
+  });
 }
