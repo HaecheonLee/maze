@@ -76,3 +76,37 @@ table, tr, td {
 #game_mode_on_indicator {
   visibility: hidden;
 }
+
+#table_container {
+  margin-bottom: 2.5em;
+}
+
+#log {
+  height: 12.5em;
+  resize: none;
+  overflow-y: auto;
+
+  border: 1px solid grey;
+}
+
+#log:hover  {
+  cursor:not-allowed;
+}
+
+.noSelect {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.noSelect:focus {
+  outline: none !important;
+}
+
+.log-cell {
+  font-weight: bold;
+}

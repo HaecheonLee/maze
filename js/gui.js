@@ -266,13 +266,15 @@ function set_grid(grid) {
   table.rows[0].cells[0].setAttribute('data-starting', true);
   table.rows[N - 1].cells[M - 1].setAttribute('data-ending', true);
 
-  const app = document.getElementById('app');
+  const container = document.getElementById('table_container');
 
   // remove a table if it already exists
-  const builtTable = app.querySelector('table');
+  const builtTable = container.querySelector('table');
   if(builtTable) builtTable.remove();
 
-  app.appendChild(table);
+  container.appendChild(table);
+
+  set_log_size(container.offsetWidth, container.offsetHeight / 2);
 }
 
 function reset_grid() {
@@ -434,21 +436,29 @@ function a_star_search() {
     }
   }
 
-  console.log(tracking);
-
   return tracking;
 }
 
 async function visualize_tracking_async(tracking, endX = -1, endY = -1) {
   // If endX & endY unset, it will display how it traverses each cell in a grid
+  reset_log();
+  const startingTime = new Date();
+  let numOfVisitedCell = 0;
+
   for(let i = 0; i < tracking.length; i++) {
     const [x, y, cellColor] = tracking[i];
     const curCell = get_cell(x, y);
     update_cell_visited(curCell, cellColor);
 
+    write_log(`<span class='log-cell' id='log_${x}_${y}'>${digit_fixed(x, 2)},${digit_fixed(y, 2)}</span> reached (${new Date() - startingTime} ms)`);
+    numOfVisitedCell++;
+
     if(x === endX && y == endY) break;
     await sleep(sleepingTime);
   }
+
+  const endingTime = new Date();
+  write_log(`total cells: ${endX * endY}, visited cells: ${numOfVisitedCell}`);
 }
 
 async function travel_shortest_path_async(startX, startY, endX, endY) {
@@ -461,13 +471,21 @@ async function travel_shortest_path_async(startX, startY, endX, endY) {
     curCell = document.getElementById(curCell.dataset.prev);
   }
 
+  reset_log();
+  const startingTime = new Date();
+
   for(let i = path.length - 1; i >= 0; i--) {
     await sleep(sleepingTime * 0.25);
 
     const [x, y] = path[i];
     const curCell = get_cell(x, y);
     update_cell_visited(curCell);
+
+    write_log(`<span class='log-cell' id='log_${x}_${y}'>${digit_fixed(x, 2)},${digit_fixed(y, 2)}</span> reached (${new Date() - startingTime} ms)`);
   }
+
+  const endingTime = new Date();
+  write_log(`total cells: ${(endX + 1) * (endY + 1)}, visited cells: ${path.length}`);
 }
 
 function sleep(ms) {
@@ -542,4 +560,38 @@ function update_all_buttons_disabled(isDisabled) {
   for(let i = 0; i < buttons.length; i++) {
     buttons[i].disabled = isDisabled;
   }
+}
+
+function reset_log() {
+  const log = document.getElementById('log');
+
+  log.innerText = "";
+}
+
+function write_log(msg) {
+  const log = document.getElementById('log');
+
+  const div = document.createElement('div');
+  div.innerHTML = msg;
+  log.append(div);
+
+  // set the scroll of the div to the bottom
+  log.scrollTop = log.scrollHeight;
+}
+
+function set_log_size(width = 0, height = 0) {
+  const log = document.getElementById('log');
+
+  log.style.width = Math.max(200, width);
+  log.style.height = Math.max(200, height);
+}
+
+function digit_fixed(number, length) {
+  const str = number.toString();
+  return str.padStart(length, '0');
+}
+
+function add_event_for_log_span(x, y) {
+  const span = document.getElementById(`log_${x}_${y}`);
+
 }
